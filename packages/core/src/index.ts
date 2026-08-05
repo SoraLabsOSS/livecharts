@@ -1,20 +1,22 @@
-/** Shared, framework-agnostic exports. */
-export {
-  LiveChartEngine,
-  resolveTheme,
-  resolveSeriesPalettes,
-  parseColorRgb,
-  SERIES_COLORS,
-} from "../../core/src/index";
-
+export { LiveChartEngine } from "./engine";
 export type {
   LiveChartEngineOptions,
   EngineConfig,
   EngineSeries,
+} from "./engine";
+
+export {
+  resolveTheme,
+  resolveSeriesPalettes,
+  parseColorRgb,
+  SERIES_COLORS,
+} from "./theme";
+
+export type { CandlePoint } from "./types";
+export type {
   LiveChartPoint,
   LiveChartSeries,
   LiveChartPalette,
-  CandlePoint,
   ReferenceLine,
   Momentum,
   ThemeMode,
@@ -26,4 +28,4 @@ export type {
   WindowStyle,
   BadgeVariant,
   ChartLayout,
-} from "../../core/src/index";
+} from "./types";

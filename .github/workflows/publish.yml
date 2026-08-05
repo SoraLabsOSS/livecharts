@@ -13,8 +13,7 @@ jobs:
       id-token: write
     steps:
       - uses: actions/checkout@v4
-        with:
-          ref: main
+        # Publish the tagged commit, not main tip
 
       - uses: oven-sh/setup-bun@v2
         with:
@@ -27,7 +26,22 @@ jobs:
 
       - run: bun install --frozen-lockfile
 
-      - run: bun run build --filter=livecharts
+      - run: bun run check-types --filter=@livecharts/core --filter=@livecharts/react --filter=livecharts
+
+      - run: bun run test --filter=@livecharts/core
+      - run: bun run test --filter=@livecharts/react
+
+      - run: bun run build --filter=@livecharts/core --filter=@livecharts/react --filter=livecharts
+
+      - name: Verify pack has no workspace runtime deps
+        working-directory: packages/livecharts
+        run: |
+          node -e "const tag=process.env.GITHUB_REF_NAME.replace(/^v/, ''); const version=require('./package.json').version; if (tag !== version) { console.error(\`tag ${tag} != package ${version}\`); process.exit(1) }"
+          npm pack --dry-run
+          node -e "const p=require('./package.json'); if (JSON.stringify(p.dependencies||{}).includes('workspace:')) { console.error('workspace in dependencies'); process.exit(1) }"
+          test -f dist/react/index.js
+          test -f dist/react/index.d.ts
+          rm -f livecharts-*.tgz
 
       - name: Publish livecharts
         run: npm publish --access public

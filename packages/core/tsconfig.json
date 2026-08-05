@@ -1,13 +1,13 @@
 {
   "extends": "@repo/typescript-config/base.json",
   "compilerOptions": {
-    "jsx": "react-jsx",
     "outDir": "dist",
+    "rootDir": "src",
     "module": "ESNext",
     "moduleResolution": "bundler",
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "noUncheckedIndexedAccess": false
   },
-  "include": ["src", "../core/src", "../react/src"],
-  "exclude": ["node_modules", "dist", "**/__tests__"]
+  "include": ["src"],
+  "exclude": ["node_modules", "dist", "src/**/__tests__"]
 }

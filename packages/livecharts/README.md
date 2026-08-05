@@ -1,14 +1,43 @@
-# livecharts
+# LiveCharts
 
-Simple hello-world package for LiveCharts.
+Real-time animated charts. Canvas engine with framework bindings.
+
+## Install
 
 ```bash
-npx livecharts
-# Hello from livecharts!
+npm install livecharts
+# peer: react >= 18 (for livecharts/react)
 ```
+
+## React
+
+```tsx
+import { LiveChart } from "livecharts/react";
+import type { LiveChartPoint } from "livecharts/react";
+
+function Chart({ data, value }: { data: LiveChartPoint[]; value: number }) {
+  return (
+    <div style={{ height: 200 }}>
+      <LiveChart data={data} value={value} />
+    </div>
+  );
+}
+```
+
+## Core (framework-agnostic)
 
 ```ts
-import { hello } from "livecharts";
-
-hello();
+import { LiveChartEngine, resolveTheme } from "livecharts";
 ```
+
+## Monorepo packages (private)
+
+| Package             | Role                                      |
+| ------------------- | ----------------------------------------- |
+| `@livecharts/core`  | Canvas engine — no React                  |
+| `@livecharts/react` | `<LiveChart />` wrapper                   |
+| `livecharts`        | Published npm package (bundles the above) |
+
+## License
+
+MIT. Chart engine based on [Liveline](https://github.com/benjitaylor/liveline) by Benji Taylor (MIT).

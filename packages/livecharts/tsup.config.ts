@@ -1,15 +1,16 @@
 import { defineConfig } from "tsup";
 
 export default defineConfig({
-  banner: {
-    js: "#!/usr/bin/env node",
+  entry: {
+    index: "src/index.ts",
+    "react/index": "src/react/index.ts",
   },
+  format: ["esm", "cjs"],
+  dts: {
+    resolve: true,
+  },
+  splitting: false,
   clean: true,
-  dts: true,
-  entry: ["src/index.ts"],
-  format: ["esm"],
-  minify: false,
-  platform: "node",
-  sourcemap: true,
-  target: "node18",
+  jsx: "automatic",
+  external: ["react", "react-dom", "react/jsx-runtime"],
 });

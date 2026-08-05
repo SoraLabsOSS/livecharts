@@ -1,32 +1,65 @@
 {
   "name": "livecharts",
-  "version": "0.0.1",
-  "description": "LiveCharts — hello world starter package",
+  "version": "0.0.2",
+  "description": "Real-time animated charts for React — canvas engine with framework bindings",
   "license": "MIT",
   "type": "module",
-  "main": "./dist/index.js",
+  "sideEffects": false,
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
-    }
-  },
-  "bin": {
-    "livecharts": "./dist/index.js"
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    },
+    "./react": {
+      "import": {
+        "types": "./dist/react/index.d.ts",
+        "default": "./dist/react/index.js"
+      },
+      "require": {
+        "types": "./dist/react/index.d.cts",
+        "default": "./dist/react/index.cjs"
+      }
+    },
+    "./package.json": "./package.json"
   },
   "files": [
     "dist",
-    "README.md"
+    "README.md",
+    "LICENSE"
   ],
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
     "check-types": "tsc --noEmit"
   },
+  "peerDependencies": {
+    "react": ">=18",
+    "react-dom": ">=18"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    },
+    "react-dom": {
+      "optional": true
+    }
+  },
+  "dependencies": {},
   "devDependencies": {
+    "@livecharts/core": "workspace:*",
+    "@livecharts/react": "workspace:*",
     "@repo/typescript-config": "workspace:*",
-    "@types/node": "^22.15.3",
+    "@types/react": "^19.0.0",
+    "react": "^19.0.0",
     "tsup": "^8.5.1",
     "typescript": "5.9.2"
   },
@@ -41,5 +74,13 @@
   "homepage": "https://github.com/SoraLabsOSS/livecharts#readme",
   "publishConfig": {
     "access": "public"
-  }
+  },
+  "keywords": [
+    "chart",
+    "react",
+    "canvas",
+    "real-time",
+    "line-chart",
+    "candlestick"
+  ]
 }
