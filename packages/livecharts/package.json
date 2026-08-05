@@ -1,0 +1,45 @@
+{
+  "name": "@soralabsoss/livecharts",
+  "version": "0.0.1",
+  "description": "LiveCharts — hello world starter package",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "bin": {
+    "livecharts": "./dist/index.js"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "check-types": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@repo/typescript-config": "workspace:*",
+    "@types/node": "^22.15.3",
+    "tsup": "^8.5.1",
+    "typescript": "5.9.2"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SoraLabsOSS/livecharts.git",
+    "directory": "packages/livecharts"
+  },
+  "homepage": "https://github.com/SoraLabsOSS/livecharts#readme",
+  "publishConfig": {
+    "access": "public"
+  }
+}
