@@ -44,7 +44,7 @@ jobs:
           rm -f livecharts-*.tgz
 
       - name: Publish livecharts
-        run: npm publish --access public
+        run: npm publish --access public --provenance
         working-directory: packages/livecharts
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
