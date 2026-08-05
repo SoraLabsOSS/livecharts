@@ -3,11 +3,20 @@
   "compilerOptions": {
     "jsx": "react-jsx",
     "outDir": "dist",
+    "rootDir": "..",
     "module": "ESNext",
     "moduleResolution": "bundler",
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
-    "noUncheckedIndexedAccess": false
+    "noUncheckedIndexedAccess": false,
+    "paths": {
+      "@livecharts/core": ["../core/src/index.ts"]
+    }
   },
   "include": ["src", "../core/src", "../react/src"],
-  "exclude": ["node_modules", "dist", "**/__tests__"]
+  "exclude": [
+    "node_modules",
+    "dist",
+    "../core/src/**/__tests__",
+    "../react/src/**/__tests__"
+  ]
 }
