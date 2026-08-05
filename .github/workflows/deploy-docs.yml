@@ -36,13 +36,12 @@ jobs:
       - run: bun install --frozen-lockfile
 
       - run: bun run build:pages --filter=docs
-        env:
-          GITHUB_PAGES: "true"
 
       - name: Prepare Pages artifact
         run: |
           touch apps/docs/out/.nojekyll
-          # Ensure trailing-slash routes resolve under project Pages basePath
+          # Custom domain for project Pages is served at `/` (no /livecharts basePath)
+          printf 'livecharts.soralabs.io.vn\n' > apps/docs/out/CNAME
           test -f apps/docs/out/index.html
           test -d apps/docs/out/docs
 
