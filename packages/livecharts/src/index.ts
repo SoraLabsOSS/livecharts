@@ -1,6 +1,5 @@
-/** Shared, framework-agnostic exports. */
-
 export type {
+  AggregateCandlesResult,
   BadgeVariant,
   CandlePoint,
   ChartLayout,
@@ -17,10 +16,14 @@ export type {
   Padding,
   ReferenceLine,
   ThemeMode,
+  Walker,
+  WalkerConfig,
   WindowOption,
   WindowStyle,
 } from "../../core/src/index";
 export {
+  aggregateCandles,
+  createWalker,
   LiveChartEngine,
   parseColorRgb,
   resolveSeriesPalettes,

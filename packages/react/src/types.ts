@@ -37,6 +37,8 @@ export interface LiveChartProps {
   loading?: boolean;
   paused?: boolean;
   emptyText?: string;
+  /** Stop the rAF loop while the chart is offscreen. Default true. */
+  pauseWhenOffscreen?: boolean;
   scrub?: boolean;
   exaggerate?: boolean;
   showValue?: boolean;
@@ -75,6 +77,10 @@ export interface LiveChartProps {
   candles?: CandlePoint[];
   candleWidth?: number;
   liveCandle?: CandlePoint;
+  /**
+   * @deprecated Prefer `mode` / `onModeChange`. When candle data is present,
+   * morph state is derived from `mode === "line"`. Still accepted as an override.
+   */
   lineMode?: boolean;
   lineData?: LiveChartPoint[];
   lineValue?: number;

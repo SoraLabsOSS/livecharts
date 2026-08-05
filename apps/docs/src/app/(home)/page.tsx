@@ -9,7 +9,11 @@ export default function HomePage() {
         <Link className="font-medium text-fd-foreground underline" href="/docs">
           /docs
         </Link>{" "}
-        to get started.
+        to get started, or try the interactive{" "}
+        <Link className="font-medium text-fd-foreground underline" href="/demo">
+          /demo
+        </Link>{" "}
+        article.
       </p>
     </div>
   );

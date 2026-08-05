@@ -51,6 +51,31 @@
           }
         }
       }
+    },
+    {
+      // Dense 1:1 article port — many demos with inline formatters/loops.
+      "includes": ["apps/docs/src/app/demo/**"],
+      "linter": {
+        "rules": {
+          "complexity": {
+            "noExcessiveCognitiveComplexity": "off"
+          },
+          "performance": {
+            "noJsxPropsBind": "off"
+          },
+          "style": {
+            "noDescendingSpecificity": "off",
+            "noIncrementDecrement": "off",
+            "useConsistentTypeDefinitions": "off"
+          },
+          "correctness": {
+            "useExhaustiveDependencies": "off"
+          },
+          "suspicious": {
+            "noUnnecessaryConditions": "off"
+          }
+        }
+      }
     }
   ]
 }

@@ -99,6 +99,8 @@ export class LiveChartEngine {
   private ctx: CanvasRenderingContext2D | null = null
   private raf = 0
   private lastFrame = 0
+  /** True when the container is not intersecting the viewport. */
+  private offscreen = false
 
   // Badge DOM elements
   private badge: BadgeEls | null = null
@@ -225,6 +227,7 @@ export class LiveChartEngine {
     this.setupPointerEvents()
     this.setupReducedMotion()
     this.setupVisibility()
+    this.setupOffscreen()
   }
 
   /** Create badge DOM elements (once, appended to container) */
@@ -316,7 +319,8 @@ export class LiveChartEngine {
   private setupVisibility(): void {
     const onVisibility = () => {
       if (!this.running) return
-      if (!document.hidden && !this.raf) {
+      if (!document.hidden && !this.isDrawSuspended() && !this.raf) {
+        this.lastFrame = 0
         this.raf = requestAnimationFrame(this.draw)
       }
     }
@@ -324,12 +328,41 @@ export class LiveChartEngine {
     this.cleanups.push(() => document.removeEventListener('visibilitychange', onVisibility))
   }
 
+  /** Pause/resume when the chart scrolls out of (or into) the viewport. */
+  private setupOffscreen(): void {
+    if (typeof IntersectionObserver === 'undefined') return
+
+    const io = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0]
+        if (!entry) return
+        this.offscreen = !entry.isIntersecting
+        if (!this.running) return
+        if (!this.isDrawSuspended() && !this.raf) {
+          this.lastFrame = 0
+          this.raf = requestAnimationFrame(this.draw)
+        }
+      },
+      { threshold: 0 },
+    )
+    io.observe(this.container)
+    this.cleanups.push(() => io.disconnect())
+  }
+
+  private pauseWhenOffscreenEnabled(): boolean {
+    return this.config?.pauseWhenOffscreen !== false
+  }
+
+  private isDrawSuspended(): boolean {
+    return document.hidden || (this.pauseWhenOffscreenEnabled() && this.offscreen)
+  }
+
   // ─── Draw loop ────────────────────────────────────────────────────────────
 
   private draw = (): void => {
-    if (document.hidden) {
+    if (this.isDrawSuspended()) {
       this.raf = 0
-      return  // stop the loop; visibilitychange listener will restart it
+      return  // stop the loop; visibility / intersection listeners will restart it
     }
 
     const canvas = this.canvas

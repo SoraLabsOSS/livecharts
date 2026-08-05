@@ -16,6 +16,7 @@ const config = {
   output: "export",
   reactStrictMode: true,
   trailingSlash: true,
+  transpilePackages: ["livecharts"],
 };
 
 export default withMDX(config);

@@ -51,6 +51,8 @@ export interface EngineConfig {
   loading?: boolean
   paused?: boolean
   emptyText?: string
+  /** Stop the rAF loop while the chart container is offscreen. Default true. */
+  pauseWhenOffscreen?: boolean
 
   // Candlestick mode
   mode: 'line' | 'candle'

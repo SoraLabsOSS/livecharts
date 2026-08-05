@@ -33,6 +33,7 @@ export function LiveChart({
   loading = false,
   paused = false,
   emptyText,
+  pauseWhenOffscreen = true,
   exaggerate = false,
   degen: degenProp,
   badgeTail = true,
@@ -158,8 +159,15 @@ export function LiveChart({
     }
   }, [activeWindowSecs, windows]);
 
-  // Measure active mode button for sliding indicator
-  const activeMode = lineMode ? "line" : "candle";
+  // Candle morph: engine always runs candle mode; lineMode drives the morph.
+  const hasCandleData = (candles?.length ?? 0) > 0 || liveCandle != null;
+  const engineMode = hasCandleData ? "candle" : mode;
+  const engineLineMode = hasCandleData
+    ? (lineMode ?? mode === "line")
+    : false;
+
+  // Mode toggle UI keys off `mode` when candle chrome is shown
+  const activeMode = hasCandleData ? mode : lineMode ? "line" : "candle";
   useLayoutEffect(() => {
     if (!onModeChange) return;
     const btn = modeBtnRefs.current.get(activeMode);
@@ -228,11 +236,12 @@ export function LiveChart({
     loading,
     paused,
     emptyText,
-    mode,
+    pauseWhenOffscreen,
+    mode: engineMode,
     candles,
     candleWidth,
     liveCandle,
-    lineMode,
+    lineMode: engineLineMode,
     lineData,
     lineValue,
     multiSeries,
