@@ -1,6 +1,6 @@
 "use client";
 
-import { createWalker, type WalkerConfig } from "livecharts";
+import { createWalker, type WalkerConfig } from "livecharts/data";
 import type { LiveChartPoint } from "livecharts/react";
 import { useEffect, useRef, useState } from "react";
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { createWalker } from "livecharts";
+import { createWalker } from "livecharts/data";
 import type {
   CandlePoint,
   LiveChartPoint,

@@ -6,6 +6,7 @@ export default defineConfig({
     resolve: true,
   },
   entry: {
+    "data/index": "src/data/index.ts",
     index: "src/index.ts",
     "react/index": "src/react/index.ts",
   },

@@ -30,6 +30,17 @@ function Chart({ data, value }: { data: LiveChartPoint[]; value: number }) {
 import { LiveChartEngine, resolveTheme } from "livecharts";
 ```
 
+## Data helpers
+
+Import helpers from the dedicated entry when no chart runtime is needed:
+
+```ts
+import { aggregateCandles, createWalker } from "livecharts/data";
+```
+
+The root `livecharts` entry continues to export these helpers for backward
+compatibility.
+
 ## Monorepo packages (private)
 
 | Package             | Role                                      |

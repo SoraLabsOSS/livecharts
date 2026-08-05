@@ -39,8 +39,13 @@ jobs:
           node -e "const tag=process.env.GITHUB_REF_NAME.replace(/^v/, ''); const version=require('./package.json').version; if (tag !== version) { console.error(\`tag ${tag} != package ${version}\`); process.exit(1) }"
           npm pack --dry-run
           node -e "const p=require('./package.json'); if (JSON.stringify(p.dependencies||{}).includes('workspace:')) { console.error('workspace in dependencies'); process.exit(1) }"
+          test -f dist/data/index.js
+          test -f dist/data/index.d.ts
           test -f dist/react/index.js
           test -f dist/react/index.d.ts
+          node --input-type=module -e "const m=await import('./dist/data/index.js'); if(typeof m.createWalker!=='function'||typeof m.aggregateCandles!=='function') process.exit(1)"
+          node -e "const m=require('./dist/data/index.cjs'); if(typeof m.createWalker!=='function'||typeof m.aggregateCandles!=='function') process.exit(1)"
+          node -e "const s=require('fs').readFileSync('dist/data/index.js','utf8'); if(s.includes('LiveChartEngine')) { console.error('data entry bundled chart engine'); process.exit(1) }"
           rm -f livecharts-*.tgz
 
       - name: Publish livecharts
