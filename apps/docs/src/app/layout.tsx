@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { Provider } from "@/components/provider";
 import "./global.css";
@@ -5,6 +6,10 @@ import "./global.css";
 const inter = Inter({
   subsets: ["latin"],
 });
+
+export const metadata: Metadata = {
+  metadataBase: new URL("https://soralabsoss.github.io"),
+};
 
 export default function Layout({ children }: LayoutProps<"/">) {
   return (

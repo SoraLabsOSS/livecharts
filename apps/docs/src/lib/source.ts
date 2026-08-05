@@ -17,6 +17,9 @@ const docs = defineDocs({
   },
 });
 
+// `basePath` is only applied to routing, not to URLs fetched by the browser.
+const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
+
 // See https://fumadocs.dev/docs/headless/source-api for more info
 export const source = loader({
   baseUrl: docsRoute,
@@ -30,7 +33,7 @@ export function getPageImageUrl(page: (typeof source)["$inferPage"]) {
   return {
     segments,
     url:
-      "/" +
+      `${basePath}/` +
       [page.locale, ...docsImageRoute.split("/"), ...segments]
         .filter(Boolean)
         .join("/"),
@@ -43,7 +46,7 @@ export function getPageMarkdownUrl(page: (typeof source)["$inferPage"]) {
   return {
     segments,
     url:
-      "/" +
+      `${basePath}/` +
       [page.locale, ...docsContentRoute.split("/"), ...segments]
         .filter(Boolean)
         .join("/"),
