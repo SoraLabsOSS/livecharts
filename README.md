@@ -28,9 +28,15 @@ import { LiveChartEngine } from "livecharts";
 
 ```bash
 bun install
+bun run lint
+bun run dev --filter=docs
 bun run build --filter=livecharts...
 bun run test --filter=@livecharts/core
 ```
+
+Docs site: [Fumadocs](https://www.fumadocs.dev/docs) app at `apps/docs` (`http://localhost:3000`).
+
+Lint/format uses [Ultracite](https://www.ultracite.ai/docs/monorepos) (Biome) at the repo root. `packages/core` and `packages/react` are excluded so Liveline-extracted sources keep their original style.
 
 ## Publish
 

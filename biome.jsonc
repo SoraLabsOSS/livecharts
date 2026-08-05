@@ -1,0 +1,56 @@
+{
+  "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
+  "extends": [
+    "ultracite/biome/core",
+    "ultracite/biome/react",
+    "ultracite/biome/next"
+  ],
+  "files": {
+    "includes": [
+      "!**/dist",
+      "!**/.next",
+      "!**/.turbo",
+      "!**/node_modules",
+      "!**/coverage",
+      "!**/public",
+      "!**/.source",
+      "!sandbox"
+    ]
+  },
+  "overrides": [
+    {
+      // Liveline-extracted sources — keep original style/behavior; do not format or lint-rewrite.
+      "includes": ["packages/core/**", "packages/react/**"],
+      "formatter": {
+        "enabled": false
+      },
+      "linter": {
+        "enabled": false
+      },
+      "assist": {
+        "enabled": false
+      }
+    },
+    {
+      // Public package entrypoints are intentional re-export barrels.
+      "includes": ["packages/livecharts/src/**"],
+      "linter": {
+        "rules": {
+          "performance": {
+            "noBarrelFile": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": ["apps/docs/src/lib/cn.ts"],
+      "linter": {
+        "rules": {
+          "performance": {
+            "noBarrelFile": "off"
+          }
+        }
+      }
+    }
+  ]
+}

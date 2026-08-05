@@ -1,0 +1,40 @@
+---
+title: Getting started
+description: Install and render your first LiveChart
+---
+
+## Install
+
+```bash
+npm install livecharts
+```
+
+React is a peer dependency (`react` >= 18).
+
+## Minimal example
+
+```tsx
+"use client";
+
+import { LiveChart } from "livecharts/react";
+
+const data = [
+  { time: Date.now() / 1000 - 30, value: 100 },
+  { time: Date.now() / 1000, value: 104 },
+];
+
+export default function Page() {
+  return (
+    <div style={{ height: 280 }}>
+      <LiveChart data={data} value={104} window={30} />
+    </div>
+  );
+}
+```
+
+## Package layout
+
+| Import | Exports |
+| --- | --- |
+| `livecharts` | `LiveChartEngine`, theme helpers, shared types |
+| `livecharts/react` | `LiveChart`, `LiveChartTransition`, hooks |

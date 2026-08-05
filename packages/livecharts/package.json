@@ -2,12 +2,23 @@
   "name": "livecharts",
   "version": "0.0.2",
   "description": "Real-time animated charts for React — canvas engine with framework bindings",
+  "keywords": [
+    "chart",
+    "react",
+    "canvas",
+    "real-time",
+    "line-chart",
+    "candlestick"
+  ],
+  "homepage": "https://github.com/SoraLabsOSS/livecharts#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SoraLabsOSS/livecharts.git",
+    "directory": "packages/livecharts"
+  },
   "license": "MIT",
-  "type": "module",
   "sideEffects": false,
-  "main": "./dist/index.cjs",
-  "module": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "type": "module",
   "exports": {
     ".": {
       "import": {
@@ -31,6 +42,9 @@
     },
     "./package.json": "./package.json"
   },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "files": [
     "dist",
     "README.md",
@@ -38,8 +52,18 @@
   ],
   "scripts": {
     "build": "tsup",
-    "dev": "tsup --watch",
-    "check-types": "tsc --noEmit"
+    "check-types": "tsc --noEmit",
+    "dev": "tsup --watch"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@livecharts/core": "workspace:*",
+    "@livecharts/react": "workspace:*",
+    "@repo/typescript-config": "workspace:*",
+    "@types/react": "^19.0.0",
+    "react": "^19.0.0",
+    "tsup": "^8.5.1",
+    "typescript": "5.9.2"
   },
   "peerDependencies": {
     "react": ">=18",
@@ -53,34 +77,10 @@
       "optional": true
     }
   },
-  "dependencies": {},
-  "devDependencies": {
-    "@livecharts/core": "workspace:*",
-    "@livecharts/react": "workspace:*",
-    "@repo/typescript-config": "workspace:*",
-    "@types/react": "^19.0.0",
-    "react": "^19.0.0",
-    "tsup": "^8.5.1",
-    "typescript": "5.9.2"
-  },
   "engines": {
     "node": ">=18"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/SoraLabsOSS/livecharts.git",
-    "directory": "packages/livecharts"
-  },
-  "homepage": "https://github.com/SoraLabsOSS/livecharts#readme",
   "publishConfig": {
     "access": "public"
-  },
-  "keywords": [
-    "chart",
-    "react",
-    "canvas",
-    "real-time",
-    "line-chart",
-    "candlestick"
-  ]
+  }
 }

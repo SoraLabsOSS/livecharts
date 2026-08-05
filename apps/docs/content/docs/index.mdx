@@ -1,0 +1,41 @@
+---
+title: Introduction
+description: Real-time canvas charts for React
+---
+
+LiveCharts is a real-time animated charting library with a framework-agnostic canvas engine and React bindings.
+
+## Install
+
+```bash
+npm install livecharts
+```
+
+## React
+
+```tsx
+import { LiveChart } from "livecharts/react";
+
+export function Chart() {
+  return (
+    <LiveChart
+      data={[
+        { time: 1, value: 10 },
+        { time: 2, value: 12 },
+      ]}
+      value={12}
+    />
+  );
+}
+```
+
+## Core engine
+
+```ts
+import { LiveChartEngine } from "livecharts";
+```
+
+<Cards>
+  <Card title="Getting started" href="/docs/getting-started" />
+  <Card title="Fumadocs" href="https://fumadocs.dev" />
+</Cards>
