@@ -34,7 +34,7 @@ bun run build --filter=livecharts...
 bun run test --filter=@livecharts/core
 ```
 
-Docs site: [Fumadocs](https://www.fumadocs.dev/docs) app at `apps/docs` (`http://localhost:3000`).
+Docs site: [Fumadocs](https://www.fumadocs.dev/docs) app at `apps/docs` (`bun run dev --filter=docs`). Static export deploys to GitHub Pages on push to `main` → https://soralabsoss.github.io/livecharts/
 
 Lint/format uses [Ultracite](https://www.ultracite.ai/docs/monorepos) (Biome) at the repo root. `packages/core` and `packages/react` are excluded so Liveline-extracted sources keep their original style.
 
