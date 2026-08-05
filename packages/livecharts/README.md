@@ -1,14 +1,14 @@
-# @soralabsoss/livecharts
+# livecharts
 
 Simple hello-world package for LiveCharts.
 
 ```bash
-npx @soralabsoss/livecharts
+npx livecharts
 # Hello from livecharts!
 ```
 
 ```ts
-import { hello } from "@soralabsoss/livecharts";
+import { hello } from "livecharts";
 
 hello();
 ```

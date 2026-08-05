@@ -1,13 +1,13 @@
 # LiveCharts
 
-Monorepo for LiveCharts. Publishable package: [`@soralabsoss/livecharts`](./packages/livecharts).
+Monorepo for LiveCharts. Publishable package: [`livecharts`](./packages/livecharts).
 
 ## Getting started
 
 ```bash
 bun install
-bun run build --filter=@soralabsoss/livecharts
-bunx @soralabsoss/livecharts
+bun run build --filter=livecharts
+bunx livecharts
 ```
 
 ## Publish
