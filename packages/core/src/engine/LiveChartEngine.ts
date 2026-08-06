@@ -101,6 +101,8 @@ export class LiveChartEngine {
   private lastFrame = 0
   /** True when the container is not intersecting the viewport. */
   private offscreen = false
+  /** performance.now() when draw loop first suspended; 0 when running. */
+  private drawSuspendedSince = 0
 
   // Badge DOM elements
   private badge: BadgeEls | null = null
@@ -319,10 +321,11 @@ export class LiveChartEngine {
   private setupVisibility(): void {
     const onVisibility = () => {
       if (!this.running) return
-      if (!document.hidden && !this.isDrawSuspended() && !this.raf) {
-        this.lastFrame = 0
-        this.raf = requestAnimationFrame(this.draw)
+      if (document.hidden) {
+        this.markDrawSuspended()
+        return
       }
+      this.tryResumeDrawLoop()
     }
     document.addEventListener('visibilitychange', onVisibility)
     this.cleanups.push(() => document.removeEventListener('visibilitychange', onVisibility))
@@ -338,10 +341,11 @@ export class LiveChartEngine {
         if (!entry) return
         this.offscreen = !entry.isIntersecting
         if (!this.running) return
-        if (!this.isDrawSuspended() && !this.raf) {
-          this.lastFrame = 0
-          this.raf = requestAnimationFrame(this.draw)
+        if (this.isDrawSuspended()) {
+          this.markDrawSuspended()
+          return
         }
+        this.tryResumeDrawLoop()
       },
       { threshold: 0 },
     )
@@ -357,12 +361,51 @@ export class LiveChartEngine {
     return document.hidden || (this.pauseWhenOffscreenEnabled() && this.offscreen)
   }
 
+  /** Record suspend start; cancel any pending frame so we don't clear mid-pause. */
+  private markDrawSuspended(): void {
+    if (!this.drawSuspendedSince) this.drawSuspendedSince = performance.now()
+    if (this.raf) {
+      cancelAnimationFrame(this.raf)
+      this.raf = 0
+    }
+  }
+
+  /**
+   * Restart the rAF loop after tab/offscreen pause.
+   * If we were suspended long enough that the live value left the frozen
+   * display range, snap range on the next frame so the stroke doesn't sit
+   * on the clip edge (invisible) while min/max slowly catch up.
+   */
+  private tryResumeDrawLoop(): void {
+    if (!this.running || this.isDrawSuspended() || this.raf) return
+
+    if (this.drawSuspendedSince) {
+      const pausedFor = performance.now() - this.drawSuspendedSince
+      if (pausedFor > 250 && this.config) {
+        const v = this.config.value
+        if (v < this.displayMin || v > this.displayMax) {
+          this.rangeInited = false
+        }
+      }
+      this.drawSuspendedSince = 0
+    }
+
+    this.lastFrame = 0
+    this.raf = requestAnimationFrame(this.draw)
+  }
+
   // ─── Draw loop ────────────────────────────────────────────────────────────
 
   private draw = (): void => {
     if (this.isDrawSuspended()) {
-      this.raf = 0
+      this.markDrawSuspended()
       return  // stop the loop; visibility / intersection listeners will restart it
+    }
+
+    // Resume path when the previous frame self-stopped without an IO event
+    // (e.g. pauseWhenOffscreen flipped false via setConfig).
+    if (this.drawSuspendedSince) {
+      this.drawSuspendedSince = 0
     }
 
     const canvas = this.canvas

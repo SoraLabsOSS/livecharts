@@ -67,7 +67,12 @@ describe("offscreen pause", () => {
       rafCallbacks.push(cb);
       return rafId;
     });
-    vi.stubGlobal("cancelAnimationFrame", () => {});
+    vi.stubGlobal("cancelAnimationFrame", (id: number) => {
+      // Drop the cancelled callback so pending frames match real browsers.
+      if (rafCallbacks.length > 0 && id === rafId) {
+        rafCallbacks.pop();
+      }
+    });
     Object.defineProperty(window, "matchMedia", {
       configurable: true,
       value: () => ({
@@ -118,7 +123,7 @@ describe("offscreen pause", () => {
     expect(rafCallbacks.length).toBe(1);
 
     setIntersecting(false);
-    flushFrames(1);
+    // Pending frame is cancelled immediately — no need to flush a suspend frame.
     expect(rafCallbacks.length).toBe(0);
 
     flushFrames(2);
@@ -130,7 +135,6 @@ describe("offscreen pause", () => {
   it("resumes the loop when re-entering the viewport", () => {
     const { engine } = mount(baseConfig());
     setIntersecting(false);
-    flushFrames(1);
     expect(rafCallbacks.length).toBe(0);
 
     setIntersecting(true);
@@ -140,6 +144,45 @@ describe("offscreen pause", () => {
     expect(rafCallbacks.length).toBe(1);
 
     engine.destroy();
+  });
+
+  it("snaps range after a long offscreen pause when value left the frozen range", () => {
+    vi.spyOn(performance, "now")
+      .mockReturnValueOnce(1000) // suspend mark
+      .mockReturnValueOnce(1000)
+      .mockReturnValueOnce(2000); // resume (>250ms later)
+
+    const { engine } = mount(
+      baseConfig({
+        value: 11,
+        data: [
+          { time: 1, value: 10 },
+          { time: 2, value: 11 },
+        ],
+      }),
+    );
+
+    // Establish an on-screen range around ~10–11
+    flushFrames(3);
+    setIntersecting(false);
+    expect(rafCallbacks.length).toBe(0);
+
+    // Live value jumps outside the frozen display range while paused
+    engine.setConfig(
+      baseConfig({
+        value: 0,
+        data: [
+          { time: 1, value: 0 },
+          { time: 2, value: 0 },
+        ],
+      }),
+    );
+
+    setIntersecting(true);
+    expect(rafCallbacks.length).toBe(1);
+
+    engine.destroy();
+    vi.restoreAllMocks();
   });
 
   it("keeps looping when pauseWhenOffscreen is false", () => {

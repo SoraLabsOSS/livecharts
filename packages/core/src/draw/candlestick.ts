@@ -191,8 +191,13 @@ export function drawClosePrice(
   scrubDim: number,
   bullBlend = -1,
 ) {
-  const y = layout.toY(liveCandle.close)
-  if (y < layout.pad.top || y > layout.h - layout.pad.bottom) return
+  // Clamp instead of skipping — a live close of 0 (or any value outside a
+  // still-lerping display range) sits on/over the chart edge; skipping made
+  // the dashed price line vanish while the badge kept moving.
+  const y = Math.max(
+    layout.pad.top,
+    Math.min(layout.h - layout.pad.bottom, layout.toY(liveCandle.close)),
+  )
 
   const isBull = liveCandle.close >= liveCandle.open
   const color = bullBlend >= 0 ? blendColor(bullBlend) : (isBull ? BULL : BEAR)

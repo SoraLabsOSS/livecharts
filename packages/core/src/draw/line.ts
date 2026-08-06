@@ -96,11 +96,15 @@ export function drawLine(
   // animate smoothly instead of snapping). Its X stays at the original
   // data time (stable, no per-frame drift — this is what killed jitter).
   // Then append the live tip at (now, smoothValue).
-  // Y coordinates are clamped to chart bounds so the line hugs the edge
-  // during range transitions instead of getting hard-clipped.
+  // Y is inset by half the stroke width so a value sitting on the range
+  // edge (e.g. 0 after a stale range / offscreen resume) still paints —
+  // a stroke centered on the clip boundary is fully clipped away while
+  // the badge/dot (drawn outside the clip) keep moving.
+  const strokePad = Math.max(palette.lineWidth * 0.5, 1)
   const yMin = pad.top
   const yMax = h - pad.bottom
-  const clampY = (y: number) => Math.max(yMin, Math.min(yMax, y))
+  const clampY = (y: number) =>
+    Math.max(yMin + strokePad, Math.min(yMax - strokePad, y))
 
   // During reveal, morph Y positions from the loading squiggly shape toward real data.
   // At chartReveal=0 the chart line traces the exact same squiggly as drawLoading/drawEmpty.
@@ -159,10 +163,11 @@ export function drawLine(
 
   // Clip line + fill to chart area — during big value jumps the range
   // lerps smoothly so the line may extend beyond the chart bounds.
-  // Clipping keeps it tidy while the range catches up.
+  // Clipping keeps it tidy while the range catches up. Pad vertically so
+  // edge-clamped strokes are not erased by the clip boundary.
   ctx.save()
   ctx.beginPath()
-  ctx.rect(pad.left - 1, pad.top, chartW + 2, chartH)
+  ctx.rect(pad.left - 1, pad.top - strokePad, chartW + 2, chartH + strokePad * 2)
   ctx.clip()
 
   if (isScrubbing) {

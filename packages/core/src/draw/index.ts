@@ -530,20 +530,18 @@ export function drawCandleFrame(
     // Accent-colored dash line (fades in with lineModeProg)
     // Skip when fully in line mode — drawLine draws its own morphing dash
     if (lp > 0.01 && !fullLineMode) {
-      const dashY = layout.toY(closeSource.close)
-      if (dashY >= pad.top && dashY <= h - pad.bottom) {
-        ctx.save()
-        ctx.setLineDash([4, 4])
-        ctx.strokeStyle = palette.dashLine
-        ctx.lineWidth = 1
-        ctx.globalAlpha = closeAlpha * lp * (1 - opts.scrubAmount * 0.2)
-        ctx.beginPath()
-        ctx.moveTo(pad.left, dashY)
-        ctx.lineTo(w - pad.right, dashY)
-        ctx.stroke()
-        ctx.setLineDash([])
-        ctx.restore()
-      }
+      const dashY = Math.max(pad.top, Math.min(h - pad.bottom, layout.toY(closeSource.close)))
+      ctx.save()
+      ctx.setLineDash([4, 4])
+      ctx.strokeStyle = palette.dashLine
+      ctx.lineWidth = 1
+      ctx.globalAlpha = closeAlpha * lp * (1 - opts.scrubAmount * 0.2)
+      ctx.beginPath()
+      ctx.moveTo(pad.left, dashY)
+      ctx.lineTo(w - pad.right, dashY)
+      ctx.stroke()
+      ctx.setLineDash([])
+      ctx.restore()
     }
   }
 
@@ -569,7 +567,10 @@ export function drawCandleFrame(
 
     ctx.save()
     ctx.beginPath()
-    ctx.rect(pad.left - 1, pad.top, chartW + 2, chartH)
+    // Vertical pad matches drawLine — keep edge strokes visible when OHLC
+    // collapses onto the chart boundary.
+    const strokePad = Math.max(palette.lineWidth * 0.5, 1)
+    ctx.rect(pad.left - 1, pad.top - strokePad, chartW + 2, chartH + strokePad * 2)
     ctx.clip()
     const accentCol = lp > 0.01 ? palette.line : undefined
     if (opts.morphT >= 0 && revealOld.length > 0) {
