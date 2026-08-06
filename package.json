@@ -14,10 +14,12 @@
     "fix": "ultracite fix",
     "format": "ultracite fix",
     "lint": "ultracite check",
+    "prepare": "lefthook install",
     "test": "turbo run test"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.6",
+    "lefthook": "^2.1.9",
     "turbo": "^2.9.6",
     "typescript": "5.9.2",
     "ultracite": "7.10.1"

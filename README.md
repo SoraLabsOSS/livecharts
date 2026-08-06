@@ -52,7 +52,7 @@ bun run test --filter=@livecharts/core
 
 Docs site: [Fumadocs](https://www.fumadocs.dev/docs) app at `apps/docs` (`bun run dev --filter=docs`). Static export deploys to GitHub Pages on push to `main` → https://livecharts.soralabs.io.vn/
 
-Lint/format uses [Ultracite](https://www.ultracite.ai/docs/monorepos) (Biome) at the repo root. `packages/core` and `packages/react` are excluded so Liveline-extracted sources keep their original style.
+Lint/format uses [Ultracite](https://www.ultracite.ai/docs/monorepos) (Biome) at the repo root. `packages/core` and `packages/react` are excluded so Liveline-extracted sources keep their original style. [Lefthook](https://lefthook.dev/) runs `ultracite fix` on pre-commit and `bun run build` on pre-push (`bun install` installs hooks via `prepare`).
 
 ## Publish
 
