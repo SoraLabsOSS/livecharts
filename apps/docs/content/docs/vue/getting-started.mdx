@@ -55,6 +55,20 @@ onUnmounted(() => {
 
 `data` is `{ time, value }[]` (unix **seconds**). `value` is the latest number.
 
+## SSR / Nuxt
+
+`LiveChart` needs a browser `canvas`. In Nuxt, wrap it in [`ClientOnly`](https://nuxt.com/docs/api/components/client-only) (or dynamic-import with `ssr: false`):
+
+```vue
+<template>
+  <ClientOnly>
+    <div style="height: 220px">
+      <LiveChart :data="data" :value="value" />
+    </div>
+  </ClientOnly>
+</template>
+```
+
 ## Props overview
 
 Props mirror [`livecharts/react`](/docs/react/api/livechart) closely. Notable mappings:
@@ -65,13 +79,13 @@ Props mirror [`livecharts/react`](/docs/react/api/livechart) closely. Notable ma
 | `series` | Multi-series; overrides `data` / `value` / `color` |
 | `theme` | `"light"` \| `"dark"` (default `"dark"`) |
 | `window` | Horizon in seconds (default `30`) |
-| `windows` | Pill buttons; use `@` handlers via `onWindowChange` |
-| `mode` / `onModeChange` | Line ↔ candle chrome |
+| `windows` | Pill buttons; listen with `@window-change` |
+| `mode` | Line ↔ candle; chrome when you listen `@mode-change` |
 | `class` / `style` | Vue-native (not `className`) |
 
 Feature flags (`grid`, `badge`, `momentum`, `fill`, `scrub`, `exaggerate`, `degen`, `loading`, `paused`, …) behave like React.
 
-Pass callbacks as props or Vue events:
+Callbacks are **events only** (not React-style `on*` props):
 
 ```vue
 <LiveChart

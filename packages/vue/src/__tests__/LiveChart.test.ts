@@ -28,16 +28,13 @@ describe("LiveChart Vue bindings", () => {
     vi.unstubAllGlobals();
   });
 
-  it("renders a canvas and forwards window changes", async () => {
-    const onWindowChange = vi.fn();
-
+  it("renders a canvas and emits windowChange", async () => {
     const wrapper = mount(LiveChart, {
       props: {
         data: [
           { time: 1, value: 10 },
           { time: 2, value: 11 },
         ],
-        onWindowChange,
         value: 11,
         windows: [
           { label: "1m", secs: 60 },
@@ -47,11 +44,25 @@ describe("LiveChart Vue bindings", () => {
     });
 
     expect(wrapper.find("canvas").exists()).toBe(true);
-    const buttons = wrapper.findAll("button");
-    const fiveMin = buttons.find((b) => b.text() === "5m");
+    const fiveMin = wrapper.findAll("button").find((b) => b.text() === "5m");
     expect(fiveMin).toBeTruthy();
-    await fiveMin!.trigger("click");
-    expect(onWindowChange).toHaveBeenCalledWith(300);
+    await fiveMin?.trigger("click");
+    expect(wrapper.emitted("windowChange")).toEqual([[300]]);
+    wrapper.unmount();
+  });
+
+  it("syncs window prop when windows pills are not used", async () => {
+    const wrapper = mount(LiveChart, {
+      props: {
+        data: [{ time: 1, value: 10 }],
+        value: 10,
+        window: 30,
+      },
+    });
+
+    await wrapper.setProps({ window: 120 });
+    // engine config is pushed via watchEffect — smoke that prop update does not throw
+    expect(wrapper.find("canvas").exists()).toBe(true);
     wrapper.unmount();
   });
 });

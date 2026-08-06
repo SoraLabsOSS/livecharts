@@ -1,6 +1,6 @@
 import { mount } from "@vue/test-utils";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { h, nextTick } from "vue";
+import { Comment, createTextVNode, h, nextTick } from "vue";
 import { LiveChartTransition } from "../LiveChartTransition";
 
 describe("LiveChartTransition", () => {
@@ -44,6 +44,23 @@ describe("LiveChartTransition", () => {
     expect(wrapper.text()).not.toContain("Line");
     expect(wrapper.text()).toContain("Candle");
 
+    wrapper.unmount();
+  });
+
+  it("ignores comment, text, and empty-key nodes", () => {
+    const wrapper = mount(LiveChartTransition, {
+      props: { active: "line", duration: 100 },
+      slots: {
+        default: () => [
+          h(Comment, null, "ignore"),
+          createTextVNode(" "),
+          h("div", { key: "" }, "Empty"),
+          h("div", { key: "line" }, "Line"),
+        ],
+      },
+    });
+
+    expect(wrapper.text()).toBe("Line");
     wrapper.unmount();
   });
 });

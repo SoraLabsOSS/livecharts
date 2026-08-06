@@ -5,7 +5,7 @@ description: Complete Vue props and events reference for livecharts/vue
 
 ```ts
 import { LiveChart } from "livecharts/vue";
-import type { LiveChartProps } from "livecharts/vue";
+import type { LiveChartEmits, LiveChartProps } from "livecharts/vue";
 ```
 
 The component fills its parent. Set a height on the wrapper.
@@ -18,10 +18,10 @@ Props mirror [`livecharts/react`](/docs/react/api/livechart). Vue-specific notes
 | --- | --- |
 | `className` | `class` |
 | `style` (`CSSProperties`) | `style` (`StyleValue`) |
-| `onWindowChange` prop | Prop **and/or** `@window-change` |
-| `onModeChange` prop | Prop **and/or** `@mode-change` |
-| `onSeriesToggle` prop | Prop **and/or** `@series-toggle` |
-| `onHover` prop | Prop **and/or** `@hover` |
+| `onWindowChange` prop | `@window-change` only |
+| `onModeChange` prop | `@mode-change` only |
+| `onSeriesToggle` prop | `@series-toggle` only |
+| `onHover` prop | `@hover` only |
 
 ## Events
 
@@ -42,7 +42,11 @@ Props mirror [`livecharts/react`](/docs/react/api/livechart). Vue-specific notes
 />
 ```
 
-Mode chrome appears when you pass `onModeChange` **or** listen for `@mode-change`.
+Mode chrome appears when you listen for `@mode-change`.
+
+## SSR
+
+Needs a browser canvas — wrap in `ClientOnly` (Nuxt) or equivalent when using SSR. See [Getting started](/docs/vue/getting-started#ssr--nuxt).
 
 ## Data
 
@@ -92,7 +96,6 @@ Mode chrome appears when you pass `onModeChange` **or** listen for `@mode-change
 | --- | --- | --- | --- |
 | `window` | `number` | `30` | Visible horizon (seconds) |
 | `windows` | `WindowOption[]` | — | Horizon button bar |
-| `onWindowChange` | `(secs: number) => void` | — | Optional prop callback |
 | `windowStyle` | `"default" \| "rounded" \| "text"` | `"default"` | Button bar style |
 
 ## Candlestick
@@ -103,7 +106,6 @@ Mode chrome appears when you pass `onModeChange` **or** listen for `@mode-change
 | `candles` | `CandlePoint[]` | — | Closed OHLC candles |
 | `liveCandle` | `CandlePoint` | — | Forming candle |
 | `candleWidth` | `number` | — | Bucket width (seconds) |
-| `onModeChange` | `(mode) => void` | — | Optional prop callback |
 | `lineMode` | `boolean` | — | **Deprecated** — prefer `mode` |
 
 ## Advanced

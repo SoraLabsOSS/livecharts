@@ -1,4 +1,5 @@
 import {
+  Comment,
   defineComponent,
   Fragment,
   h,
@@ -6,6 +7,7 @@ import {
   type PropType,
   ref,
   type StyleValue,
+  Text,
   type VNode,
   watch,
 } from "vue";
@@ -22,7 +24,7 @@ export interface LiveChartTransitionProps {
 function flattenVNodes(nodes: VNode[]): VNode[] {
   const out: VNode[] = [];
   for (const node of nodes) {
-    if (node == null) {
+    if (node == null || node.type === Comment || node.type === Text) {
       continue;
     }
     if (node.type === Fragment && Array.isArray(node.children)) {
@@ -99,7 +101,9 @@ export const LiveChartTransition = defineComponent({
 
     return () => {
       const raw = slots.default?.() ?? [];
-      const childArray = flattenVNodes(raw);
+      const childArray = flattenVNodes(raw).filter(
+        (child) => child.key != null && String(child.key) !== ""
+      );
 
       return h(
         "div",
@@ -115,7 +119,7 @@ export const LiveChartTransition = defineComponent({
           ],
         },
         childArray.map((child) => {
-          const key = String(child.key ?? "");
+          const key = String(child.key);
           if (!mounted.value.has(key)) {
             return null;
           }

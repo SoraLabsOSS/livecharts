@@ -16,5 +16,5 @@ export type {
 export { LiveChart } from "./LiveChart";
 export type { LiveChartTransitionProps } from "./LiveChartTransition";
 export { LiveChartTransition } from "./LiveChartTransition";
-export type { LiveChartProps } from "./types";
+export type { LiveChartEmits, LiveChartProps } from "./types";
 export { useLiveChartEngine } from "./useLiveChartEngine";

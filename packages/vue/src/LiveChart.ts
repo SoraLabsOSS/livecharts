@@ -16,6 +16,7 @@ import {
   type PropType,
   ref,
   type VNode,
+  watch,
 } from "vue";
 import type { LiveChartProps } from "./types";
 import { useLiveChartEngine } from "./useLiveChartEngine";
@@ -79,10 +80,6 @@ export const LiveChart = defineComponent({
       default: true,
       type: [Boolean, String] as PropType<LiveChartProps["momentum"]>,
     },
-    onHover: Function as PropType<LiveChartProps["onHover"]>,
-    onModeChange: Function as PropType<LiveChartProps["onModeChange"]>,
-    onSeriesToggle: Function as PropType<LiveChartProps["onSeriesToggle"]>,
-    onWindowChange: Function as PropType<LiveChartProps["onWindowChange"]>,
     orderbook: Object as PropType<LiveChartProps["orderbook"]>,
     padding: Object as PropType<LiveChartProps["padding"]>,
     paused: { default: false, type: Boolean },
@@ -108,8 +105,8 @@ export const LiveChart = defineComponent({
   },
   setup(props, { emit }) {
     const instance = getCurrentInstance();
-    const hasModeChangeListener = () =>
-      !!props.onModeChange || !!instance?.vnode.props?.onModeChange;
+    /** True when parent listens with `@mode-change` (declared emit). */
+    const hasModeChangeListener = () => !!instance?.vnode.props?.onModeChange;
 
     const canvasRef = ref<HTMLCanvasElement | null>(null);
     const containerRef = ref<HTMLDivElement | null>(null);
@@ -134,6 +131,28 @@ export const LiveChart = defineComponent({
       props.windows && props.windows.length > 0
         ? (props.windows[0]?.secs ?? props.window)
         : props.window
+    );
+
+    watch(
+      () => props.window,
+      (secs) => {
+        if (!props.windows?.length) {
+          activeWindowSecs.value = secs;
+        }
+      }
+    );
+
+    watch(
+      () => props.windows,
+      (wins) => {
+        if (!wins?.length) {
+          activeWindowSecs.value = props.window;
+          return;
+        }
+        if (!wins.some((w) => w.secs === activeWindowSecs.value)) {
+          activeWindowSecs.value = wins[0]?.secs ?? props.window;
+        }
+      }
     );
 
     const isDark = computed(() => props.theme === "dark");
@@ -242,7 +261,7 @@ export const LiveChart = defineComponent({
           };
         }
       }
-      if (props.onModeChange || hasModeChangeListener()) {
+      if (hasModeChangeListener()) {
         const btn = modeBtnRefs.get(activeMode.value ?? "line");
         const bar = modeBarRef.value;
         if (btn && bar) {
@@ -268,7 +287,6 @@ export const LiveChart = defineComponent({
       const next = new Set(hiddenSeries.value);
       if (next.has(id)) {
         next.delete(id);
-        props.onSeriesToggle?.(id, true);
         emit("seriesToggle", id, true);
       } else {
         const totalSeries = props.series?.length ?? 0;
@@ -277,7 +295,6 @@ export const LiveChart = defineComponent({
           return;
         }
         next.add(id);
-        props.onSeriesToggle?.(id, false);
         emit("seriesToggle", id, false);
       }
       hiddenSeries.value = next;
@@ -306,7 +323,6 @@ export const LiveChart = defineComponent({
       momentumOverride: momentumOverride.value,
       multiSeries: multiSeries.value,
       onHover: (point) => {
-        props.onHover?.(point);
         emit("hover", point);
       },
       orderbookData: props.orderbook,
@@ -433,7 +449,6 @@ export const LiveChart = defineComponent({
                       key: w.secs,
                       onClick: () => {
                         activeWindowSecs.value = w.secs;
-                        props.onWindowChange?.(w.secs);
                         emit("windowChange", w.secs);
                       },
                       ref: (el: unknown) => {
@@ -493,7 +508,6 @@ export const LiveChart = defineComponent({
                   "button",
                   {
                     onClick: () => {
-                      props.onModeChange?.("line");
                       emit("modeChange", "line");
                     },
                     ref: (el: unknown) => {
@@ -543,7 +557,6 @@ export const LiveChart = defineComponent({
                   "button",
                   {
                     onClick: () => {
-                      props.onModeChange?.("candle");
                       emit("modeChange", "candle");
                     },
                     ref: (el: unknown) => {

@@ -5,6 +5,7 @@ export type {
   CandlePoint,
   DegenOptions,
   HoverPoint,
+  LiveChartEmits,
   LiveChartPoint,
   LiveChartProps,
   LiveChartSeries,
