@@ -1,0 +1,8 @@
+{
+  "extends": ["//"],
+  "tasks": {
+    "build": {
+      "outputs": ["dist/**", "../../apps/docs/src/data/bundle-sizes.json"]
+    }
+  }
+}

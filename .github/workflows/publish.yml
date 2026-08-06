@@ -26,12 +26,13 @@ jobs:
 
       - run: bun install --frozen-lockfile
 
-      - run: bun run check-types --filter=@livecharts/core --filter=@livecharts/react --filter=livecharts
+      - run: bun run check-types --filter=@livecharts/core --filter=@livecharts/react --filter=@livecharts/vue --filter=livecharts
 
       - run: bun run test --filter=@livecharts/core
       - run: bun run test --filter=@livecharts/react
+      - run: bun run test --filter=@livecharts/vue
 
-      - run: bun run build --filter=@livecharts/core --filter=@livecharts/react --filter=livecharts
+      - run: bun run build --filter=@livecharts/core --filter=@livecharts/react --filter=@livecharts/vue --filter=livecharts
 
       - name: Verify pack has no workspace runtime deps
         working-directory: packages/livecharts
@@ -43,9 +44,13 @@ jobs:
           test -f dist/data/index.d.ts
           test -f dist/react/index.js
           test -f dist/react/index.d.ts
+          test -f dist/vue/index.js
+          test -f dist/vue/index.d.ts
           node --input-type=module -e "const m=await import('./dist/data/index.js'); if(typeof m.createWalker!=='function'||typeof m.aggregateCandles!=='function') process.exit(1)"
           node -e "const m=require('./dist/data/index.cjs'); if(typeof m.createWalker!=='function'||typeof m.aggregateCandles!=='function') process.exit(1)"
           node -e "const s=require('fs').readFileSync('dist/data/index.js','utf8'); if(s.includes('LiveChartEngine')) { console.error('data entry bundled chart engine'); process.exit(1) }"
+          node -e "const s=require('fs').readFileSync('dist/react/index.js','utf8'); if(s.includes('from \"vue\"')||s.includes(\"from 'vue'\")) { console.error('react entry imports vue'); process.exit(1) }"
+          node -e "const s=require('fs').readFileSync('dist/vue/index.js','utf8'); if(s.includes('from \"react\"')||s.includes(\"from 'react'\")) { console.error('vue entry imports react'); process.exit(1) }"
           rm -f livecharts-*.tgz
 
       - name: Publish livecharts

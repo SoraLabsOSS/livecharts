@@ -1,0 +1,40 @@
+{
+  "package": "livecharts",
+  "version": "0.0.7",
+  "measuredAt": "2026-08-06T19:23:19.799Z",
+  "method": "ESM dist, gzip -9; framework peers not included",
+  "entries": [
+    {
+      "import": "livecharts",
+      "note": "Engine + theme helpers",
+      "bytes": 136461,
+      "gzipBytes": 29725,
+      "min": "133 KB",
+      "gzip": "29 KB"
+    },
+    {
+      "import": "livecharts/react",
+      "note": "React binding (engine inlined; react is peer)",
+      "bytes": 157288,
+      "gzipBytes": 33267,
+      "min": "154 KB",
+      "gzip": "32 KB"
+    },
+    {
+      "import": "livecharts/vue",
+      "note": "Vue binding (engine inlined; vue is peer)",
+      "bytes": 161313,
+      "gzipBytes": 34155,
+      "min": "158 KB",
+      "gzip": "33 KB"
+    },
+    {
+      "import": "livecharts/data",
+      "note": "Helpers only — no canvas engine",
+      "bytes": 2515,
+      "gzipBytes": 851,
+      "min": "2.5 KB",
+      "gzip": "0.8 KB"
+    }
+  ]
+}

@@ -72,9 +72,10 @@
     "LICENSE"
   ],
   "scripts": {
-    "build": "tsup",
+    "build": "tsup && bun run measure-bundle",
     "check-types": "tsc --noEmit",
-    "dev": "tsup --watch"
+    "dev": "tsup --watch",
+    "measure-bundle": "node ./scripts/measure-bundle.mjs"
   },
   "dependencies": {},
   "devDependencies": {

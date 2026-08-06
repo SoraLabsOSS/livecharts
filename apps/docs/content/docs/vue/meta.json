@@ -1,6 +1,14 @@
 {
   "title": "Vue",
-  "description": "Vue 3 bindings",
+  "description": "Vue 3 bindings and guides",
   "root": true,
-  "pages": ["index", "getting-started", "livechart", "livechart-transition"]
+  "pages": [
+    "index",
+    "getting-started",
+    "demo",
+    "guides",
+    "livechart",
+    "livechart-transition",
+    "use-live-chart-engine"
+  ]
 }

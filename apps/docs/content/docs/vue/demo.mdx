@@ -1,0 +1,146 @@
+---
+title: Demo
+description: Interactive LiveCharts walkthrough — every major feature with Vue snippets
+---
+
+LiveCharts is a real-time animated charting library with a framework-agnostic canvas engine and Vue 3 bindings. One `<canvas>`, smooth interpolation at 60fps.
+
+Live previews use the shared engine via React bindings; copy the **Vue** snippets below.
+
+<HeroChart />
+
+Everything else is opt-in: momentum, orderbook, candlesticks, multi-series, particles.
+
+## Getting started
+
+```package-install
+livecharts
+```
+
+The component fills its parent. Set a height on the wrapper.
+
+```vue
+<script setup lang="ts">
+import { LiveChart } from "livecharts/vue";
+</script>
+
+<template>
+  <div style="height: 200px">
+    <LiveChart :data="data" :value="value" />
+  </div>
+</template>
+```
+
+`data` is an array of `{ time, value }` points (unix **seconds**). `value` is the latest number.
+
+<BasicChart />
+
+Feed it however you like — WebSocket, polling, random walk. LiveCharts interpolates between updates.
+
+<HeartRateChart />
+
+## Momentum
+
+The `momentum` prop adds directional arrows to the live tip. Pass `true` to auto-detect, or force `"up"` / `"down"` / `"flat"`.
+
+<MomentumChart />
+
+## Value overlay
+
+`showValue` renders the current value as a large number over the chart via DOM. Pair with `valueMomentumColor` to tint by direction.
+
+<ValueOverlayChart />
+
+## Time windows
+
+Pass a `windows` array for horizon buttons. Styles: `"default"`, `"rounded"`, `"text"`. Listen with `@window-change`.
+
+```vue
+<LiveChart
+  :windows="[
+    { label: '1m', secs: 60 },
+    { label: '5m', secs: 300 },
+  ]"
+  window-style="rounded"
+  @window-change="(secs) => (horizon = secs)"
+/>
+```
+
+<CpuChart />
+
+## Reference line
+
+`referenceLine={{ value, label? }}` draws a horizontal threshold.
+
+<BitcoinChart />
+
+## Orderbook
+
+Pass `orderbook` with `bids` / `asks` as `[price, size][]`. Labels spawn, drift, and fade — speed reacts to momentum and churn.
+
+<OrderbookChart />
+
+## Candlestick
+
+OHLC candles with a live forming candle. Built-in toggle morphs between line and candle views — listen with `@mode-change`.
+
+<CandlestickChart />
+
+## Multi-series
+
+Pass `series` to draw overlapping lines with toggle chips. Listen with `@series-toggle`.
+
+<MultiSeriesChart />
+
+## States
+
+`loading` shows a breathing placeholder that morphs into data. `paused` freezes the view; resume fades or morphs depending on how long you were away.
+
+<LoadingChart />
+
+<PausedChart />
+
+## Theming
+
+Pass any CSS color to `color` — LiveCharts derives the palette. `theme` switches light / dark chrome.
+
+<DarkChart />
+
+## More features
+
+- `exaggerate` — tighten Y-range for small moves
+- `scrub` — crosshair tooltips (on by default)
+- `degen` — particles + shake on swings
+- `badge-variant="minimal"` or `:badge="false"`
+
+## How it works
+
+One canvas, one `requestAnimationFrame` loop. Display state lerps toward new values (`lerpSpeed`, default `0.08`). The Y-range snaps outward instantly so the line is never clipped.
+
+## Stress testing
+
+Charts that only look good on calm data are not useful.
+
+<StressTestCharts />
+
+Sharp reversals, isolated spikes, and chaos:
+
+<SpikyTestCharts />
+
+Irregular arrival — gaps and bursts:
+
+<GappyChart />
+
+## Just a line
+
+If you only want a line that moves when a number changes:
+
+<MinimalChart />
+
+## Next steps
+
+<Cards>
+  <Card title="Getting started" href="/docs/vue/getting-started" />
+  <Card title="LiveChart props" href="/docs/vue/livechart" />
+  <Card title="Guides" href="/docs/vue/guides/feeding-data" />
+</Cards>

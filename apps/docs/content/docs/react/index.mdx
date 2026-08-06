@@ -17,6 +17,12 @@ Most charting libraries are either too heavy for a simple live feed, or too rigi
 
 Everything else — momentum arrows, orderbook labels, candlesticks, multi-series, particles — is **opt-in**.
 
+## Bundle size
+
+Separate entry points keep unused frameworks out of your app. Sizes below are measured automatically on each `livecharts` build (ESM, gzip -9). React / Vue are peers and are **not** counted.
+
+<BundleSizeTable />
+
 ## Install
 
 ```package-install

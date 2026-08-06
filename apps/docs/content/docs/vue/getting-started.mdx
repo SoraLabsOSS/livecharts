@@ -9,30 +9,65 @@ description: Install livecharts/vue and render your first chart
 livecharts
 ```
 
+Vue is a peer dependency (`vue` ≥ 3.4).
+
+## Minimal example
+
+The component fills its parent. **Set an explicit height** on the wrapper.
+
 ```vue
 <script setup lang="ts">
 import { LiveChart } from "livecharts/vue";
-import type { LiveChartPoint } from "livecharts/vue";
+
+const now = Date.now() / 1000;
+const data = [
+  { time: now - 30, value: 100 },
+  { time: now - 20, value: 102 },
+  { time: now - 10, value: 101 },
+  { time: now, value: 104 },
+];
+</script>
+
+<template>
+  <div style="height: 280px">
+    <LiveChart :data="data" :value="104" :window="30" />
+  </div>
+</template>
+```
+
+### Rules of thumb
+
+1. **`time` is unix seconds** (not milliseconds).
+2. Always pass the latest scalar as **`value`** alongside the history in **`data`**.
+3. Under SSR (Nuxt), wrap in `ClientOnly` — the chart needs `canvas` and `requestAnimationFrame`.
+4. Give the parent a height (or absolute positioning with inset). Zero-height parents render nothing useful.
+
+## Live feed (quick sketch)
+
+Feed updates however you like — WebSocket, polling, or a demo walker:
+
+```vue
+<script setup lang="ts">
+import { LiveChart } from "livecharts/vue";
+import { createWalker } from "livecharts/data";
 import { onMounted, onUnmounted, ref } from "vue";
 
-const data = ref<LiveChartPoint[]>([]);
-const value = ref(100);
+const walker = createWalker({
+  start: 100,
+  damping: 0.95,
+  volatility: 0.015,
+});
+const data = ref(walker.history);
+const value = ref(walker.value);
 
 let timer: ReturnType<typeof setInterval> | undefined;
 
 onMounted(() => {
-  let v = 100;
-  const history: LiveChartPoint[] = [];
   timer = setInterval(() => {
-    const time = Date.now() / 1000;
-    v += (Math.random() - 0.5) * 2;
-    history.push({ time, value: v });
-    while (history.length > 0 && history[0]!.time < time - 60) {
-      history.shift();
-    }
-    data.value = history.slice();
-    value.value = v;
-  }, 200);
+    const next = walker.tick();
+    data.value = next.history;
+    value.value = next.value;
+  }, 250);
 });
 
 onUnmounted(() => {
@@ -41,19 +76,38 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div style="height: 220px">
-    <LiveChart
-      :data="data"
-      :value="value"
-      theme="light"
-      color="#2563eb"
-      :window="30"
-    />
+  <div style="height: 240px">
+    <LiveChart :data="data" :value="value" :window="30" theme="light" />
   </div>
 </template>
 ```
 
-`data` is `{ time, value }[]` (unix **seconds**). `value` is the latest number.
+LiveCharts interpolates between updates, so even infrequent ticks look smooth.
+
+Live preview uses the shared engine via React bindings; copy the Vue snippet above.
+
+<BasicChart />
+
+## Customize a little
+
+```vue
+<LiveChart
+  :data="data"
+  :value="value"
+  theme="light"
+  color="#ef4444"
+  :format-value="(v) => `${v.toFixed(0)} bpm`"
+  exaggerate
+  badge-variant="minimal"
+  :grid="false"
+  :momentum="false"
+  :line-width="2.5"
+/>
+```
+
+<HeartRateChart />
+
+See [Effects](/docs/vue/guides/effects) for `exaggerate`, badge variants, and more.
 
 ## SSR / Nuxt
 
@@ -71,8 +125,6 @@ onUnmounted(() => {
 
 ## Props overview
 
-Props mirror [`livecharts/react`](/docs/react/api/livechart) closely. Notable mappings:
-
 | Prop | Notes |
 | --- | --- |
 | `data` / `value` | Required for single-series |
@@ -83,55 +135,15 @@ Props mirror [`livecharts/react`](/docs/react/api/livechart) closely. Notable ma
 | `mode` | Line ↔ candle; chrome when you listen `@mode-change` |
 | `class` / `style` | Vue-native (not `className`) |
 
-Feature flags (`grid`, `badge`, `momentum`, `fill`, `scrub`, `exaggerate`, `degen`, `loading`, `paused`, …) behave like React.
+Callbacks are **events only** (`@window-change`, `@mode-change`, `@series-toggle`, `@hover`) — not React-style `on*` props.
 
-Callbacks are **events only** (not React-style `on*` props):
+Full tables: [LiveChart API](/docs/vue/livechart).
 
-```vue
-<LiveChart
-  :data="data"
-  :value="value"
-  :windows="[
-    { label: '1m', secs: 60 },
-    { label: '5m', secs: 300 },
-  ]"
-  @window-change="(secs) => (horizon = secs)"
-/>
-```
+## Next steps
 
-Full tables: [LiveChart API](/docs/vue/livechart) · [LiveChartTransition](/docs/vue/livechart-transition).
-
-## Low-level: `useLiveChartEngine`
-
-For custom chrome, mount the engine yourself:
-
-```ts
-import { useLiveChartEngine } from "livecharts/vue";
-import { resolveTheme } from "livecharts";
-import { onMounted, ref } from "vue";
-
-const canvasRef = ref<HTMLCanvasElement | null>(null);
-const containerRef = ref<HTMLDivElement | null>(null);
-
-useLiveChartEngine(canvasRef, containerRef, () => ({
-  data: data.value,
-  value: value.value,
-  palette: resolveTheme("#3b82f6", "light"),
-  windowSecs: 30,
-  lerpSpeed: 0.08,
-  // …EngineConfig fields
-}));
-```
-
-See [LiveChartEngine](/docs/react/api/livechart-engine) for the full config surface.
-
-## Guides
-
-Engine behavior is shared — use the React guides for concepts:
-
-- [Feeding data](/docs/react/guides/feeding-data)
-- [Theming](/docs/react/guides/theming)
-- [Multi-series](/docs/react/guides/multi-series)
-- [Candlestick](/docs/react/guides/candlestick)
-
-Interactive demos live under [React → Demo](/docs/react/demo/).
+<Cards>
+  <Card title="Interactive demo" href="/docs/vue/demo/" />
+  <Card title="Feeding live data" href="/docs/vue/guides/feeding-data" />
+  <Card title="Theming" href="/docs/vue/guides/theming" />
+  <Card title="Full props" href="/docs/vue/livechart" />
+</Cards>

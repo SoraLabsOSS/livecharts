@@ -5,6 +5,8 @@ description: Vue 3 bindings over the shared LiveChart engine
 
 Import `<LiveChart />` from `livecharts/vue`. Same canvas engine as React — Composition API wrapper, SFC-friendly props.
 
+Live previews in these docs use the shared engine via React bindings. Copy the **Vue** snippets — they match the public `livecharts/vue` API.
+
 ## Install
 
 ```package-install
@@ -12,6 +14,12 @@ livecharts
 ```
 
 Peer: **Vue ≥ 3.4**.
+
+## Bundle size
+
+Same published package as React — pick the `livecharts/vue` entry. Sizes update automatically when the package builds.
+
+<BundleSizeTable />
 
 ## Package layout
 
@@ -49,8 +57,10 @@ Under SSR (Nuxt), wrap the chart in `ClientOnly` — see [Getting started](/docs
 ## Next
 
 <Cards>
-  <Card title="Getting started" description="Install, props overview, and low-level composable" href="/docs/vue/getting-started" />
+  <Card title="Getting started" description="Install, live feed, and props overview" href="/docs/vue/getting-started" />
+  <Card title="Interactive demo" description="Every major feature with Vue snippets" href="/docs/vue/demo/" />
+  <Card title="Guides" description="Feeding data, theming, candles, multi-series, …" href="/docs/vue/guides/feeding-data" />
   <Card title="LiveChart API" description="Full props and events" href="/docs/vue/livechart" />
   <Card title="LiveChartTransition" description="Cross-fade between charts" href="/docs/vue/livechart-transition" />
-  <Card title="React docs" description="Guides and live demos (same engine)" href="/docs/react/" />
+  <Card title="Shared concepts" description="Architecture & animation (engine docs)" href="/docs/react/concepts/architecture" />
 </Cards>

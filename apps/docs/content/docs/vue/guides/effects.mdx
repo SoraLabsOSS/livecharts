@@ -1,0 +1,80 @@
+---
+title: Effects & chrome
+description: exaggerate, degen, pulse, fill, badge, lineWidth
+---
+
+## exaggerate
+
+Tightens the Y-axis so small movements fill the chart height. Ideal for heart rate, temperatures, or prices that tick in tiny increments.
+
+```vue
+<LiveChart :data="data" :value="value" exaggerate />
+```
+
+Live preview uses the shared engine via React bindings; copy the Vue snippet above.
+
+<HeartRateChart />
+
+## degen
+
+Burst particles and a light chart shake on momentum swings — for when subtlety is not the goal.
+
+```vue
+<LiveChart :data="data" :value="value" degen />
+<LiveChart
+  :data="data"
+  :value="value"
+  :degen="{ scale: 1.5, downMomentum: true }"
+/>
+```
+
+```ts
+type DegenOptions = {
+  scale?: number; // particle count/size multiplier (default 1)
+  downMomentum?: boolean; // particles on down swings (default false)
+};
+```
+
+<HeroChart />
+
+## pulse / fill / lineWidth
+
+| Prop | Default | Role |
+| --- | --- | --- |
+| `pulse` | `true` | Soft glow pulse on the live tip |
+| `fill` | `true` | Gradient under the line |
+| `lineWidth` | `2` (via palette) | Stroke width in px |
+
+## Badge
+
+| Prop | Default | Role |
+| --- | --- | --- |
+| `badge` | `true` | Live value pill at the tip |
+| `badgeVariant` | `"default"` | `"default"` (accent) or `"minimal"` (quiet pill) |
+| `badgeTail` | `true` | Pointer tail toward the tip |
+| `formatValue` | `toFixed(2)` | Badge + tooltip text |
+
+```vue
+<LiveChart badge-variant="minimal" />
+<LiveChart :badge="false" />
+```
+
+## Minimal chrome recipe
+
+```vue
+<LiveChart
+  :data="data"
+  :value="value"
+  :badge="false"
+  :fill="false"
+  :grid="false"
+  :pulse="false"
+  :momentum="false"
+  :scrub="false"
+  color="#94a3b8"
+/>
+```
+
+<MinimalChart />
+
+See also the React recipe [Just a line](/docs/react/recipes/minimal-line) (same engine; swap imports to `livecharts/vue`).
