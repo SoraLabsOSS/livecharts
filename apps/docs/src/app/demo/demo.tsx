@@ -1,5 +1,6 @@
 "use client";
 
+import { Button } from "@workspace/ui/components/ui/button";
 import { useState } from "react";
 import {
   BasicChart,
@@ -405,6 +406,13 @@ export function DemoArticle() {
           </p>
 
           <PausedChart />
+
+          <p>
+            Shared UI package smoke check:{" "}
+            <Button size="sm" type="button" variant="outline">
+              @workspace/ui
+            </Button>
+          </p>
 
           <Section id="theming" title="Theming" />
 

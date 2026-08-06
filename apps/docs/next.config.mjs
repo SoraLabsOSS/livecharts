@@ -16,7 +16,7 @@ const config = {
   output: "export",
   reactStrictMode: true,
   trailingSlash: true,
-  transpilePackages: ["livecharts"],
+  transpilePackages: ["livecharts", "@workspace/ui"],
 };
 
 export default withMDX(config);

@@ -10,6 +10,7 @@
     "start": "next start"
   },
   "dependencies": {
+    "@workspace/ui": "workspace:*",
     "cnfast": "^0.1.0",
     "fumadocs-core": "16.14.0",
     "fumadocs-mdx": "15.2.2",
@@ -21,7 +22,7 @@
     "react-dom": "^19.2.8"
   },
   "devDependencies": {
-    "@repo/typescript-config": "workspace:*",
+    "@workspace/typescript-config": "workspace:*",
     "@tailwindcss/postcss": "^4.3.3",
     "@types/mdx": "^2.0.14",
     "@types/node": "^22.15.3",

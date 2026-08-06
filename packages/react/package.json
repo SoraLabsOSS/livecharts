@@ -39,7 +39,7 @@
     "@livecharts/core": "workspace:*"
   },
   "devDependencies": {
-    "@repo/typescript-config": "workspace:*",
+    "@workspace/typescript-config": "workspace:*",
     "@testing-library/react": "^16.3.2",
     "@types/react": "^19.0.0",
     "jsdom": "^30.0.1",

@@ -8,6 +8,7 @@ Monorepo for real-time canvas charts.
 | ------------------- | ------- | -------------------------------- |
 | `@livecharts/core`  | private | Framework-agnostic canvas engine |
 | `@livecharts/react` | private | `<LiveChart />` React wrapper    |
+| `@workspace/ui`     | private | Shared shadcn/Base UI components |
 | `livecharts`        | **npm** | Public package — subpaths below  |
 
 ## Usage (npm)
@@ -22,6 +23,21 @@ import { LiveChart } from "livecharts/react";
 
 ```ts
 import { LiveChartEngine } from "livecharts";
+```
+
+## Shared UI (`@workspace/ui`)
+
+Workspace package for apps (shadcn + Base UI). Add components from `packages/ui`:
+
+```bash
+cd packages/ui
+bunx shadcn@latest add card
+```
+
+Import in an app:
+
+```tsx
+import { Button } from "@workspace/ui/components/ui/button";
 ```
 
 ## Develop

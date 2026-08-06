@@ -34,7 +34,7 @@
     "test": "vitest run"
   },
   "devDependencies": {
-    "@repo/typescript-config": "workspace:*",
+    "@workspace/typescript-config": "workspace:*",
     "tsup": "^8.5.1",
     "typescript": "5.9.2",
     "vitest": "^3.2.4"
