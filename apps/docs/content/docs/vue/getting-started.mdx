@@ -1,0 +1,123 @@
+---
+title: Getting started
+description: Install livecharts/vue and render your first chart
+---
+
+## Install
+
+```package-install
+livecharts
+```
+
+```vue
+<script setup lang="ts">
+import { LiveChart } from "livecharts/vue";
+import type { LiveChartPoint } from "livecharts/vue";
+import { onMounted, onUnmounted, ref } from "vue";
+
+const data = ref<LiveChartPoint[]>([]);
+const value = ref(100);
+
+let timer: ReturnType<typeof setInterval> | undefined;
+
+onMounted(() => {
+  let v = 100;
+  const history: LiveChartPoint[] = [];
+  timer = setInterval(() => {
+    const time = Date.now() / 1000;
+    v += (Math.random() - 0.5) * 2;
+    history.push({ time, value: v });
+    while (history.length > 0 && history[0]!.time < time - 60) {
+      history.shift();
+    }
+    data.value = history.slice();
+    value.value = v;
+  }, 200);
+});
+
+onUnmounted(() => {
+  if (timer) clearInterval(timer);
+});
+</script>
+
+<template>
+  <div style="height: 220px">
+    <LiveChart
+      :data="data"
+      :value="value"
+      theme="light"
+      color="#2563eb"
+      :window="30"
+    />
+  </div>
+</template>
+```
+
+`data` is `{ time, value }[]` (unix **seconds**). `value` is the latest number.
+
+## Props overview
+
+Props mirror [`livecharts/react`](/docs/react/api/livechart) closely. Notable mappings:
+
+| Prop | Notes |
+| --- | --- |
+| `data` / `value` | Required for single-series |
+| `series` | Multi-series; overrides `data` / `value` / `color` |
+| `theme` | `"light"` \| `"dark"` (default `"dark"`) |
+| `window` | Horizon in seconds (default `30`) |
+| `windows` | Pill buttons; use `@` handlers via `onWindowChange` |
+| `mode` / `onModeChange` | Line ↔ candle chrome |
+| `class` / `style` | Vue-native (not `className`) |
+
+Feature flags (`grid`, `badge`, `momentum`, `fill`, `scrub`, `exaggerate`, `degen`, `loading`, `paused`, …) behave like React.
+
+Pass callbacks as props or Vue events:
+
+```vue
+<LiveChart
+  :data="data"
+  :value="value"
+  :windows="[
+    { label: '1m', secs: 60 },
+    { label: '5m', secs: 300 },
+  ]"
+  @window-change="(secs) => (horizon = secs)"
+/>
+```
+
+Full tables: [LiveChart API](/docs/vue/livechart) · [LiveChartTransition](/docs/vue/livechart-transition).
+
+## Low-level: `useLiveChartEngine`
+
+For custom chrome, mount the engine yourself:
+
+```ts
+import { useLiveChartEngine } from "livecharts/vue";
+import { resolveTheme } from "livecharts";
+import { onMounted, ref } from "vue";
+
+const canvasRef = ref<HTMLCanvasElement | null>(null);
+const containerRef = ref<HTMLDivElement | null>(null);
+
+useLiveChartEngine(canvasRef, containerRef, () => ({
+  data: data.value,
+  value: value.value,
+  palette: resolveTheme("#3b82f6", "light"),
+  windowSecs: 30,
+  lerpSpeed: 0.08,
+  // …EngineConfig fields
+}));
+```
+
+See [LiveChartEngine](/docs/react/api/livechart-engine) for the full config surface.
+
+## Guides
+
+Engine behavior is shared — use the React guides for concepts:
+
+- [Feeding data](/docs/react/guides/feeding-data)
+- [Theming](/docs/react/guides/theming)
+- [Multi-series](/docs/react/guides/multi-series)
+- [Candlestick](/docs/react/guides/candlestick)
+
+Interactive demos live under [React → Demo](/docs/react/demo/).

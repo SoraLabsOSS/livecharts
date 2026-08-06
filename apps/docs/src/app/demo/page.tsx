@@ -5,7 +5,7 @@ import { useEffect } from "react";
 /** Old `/demo` URL — send visitors to the docs walkthrough. */
 export default function DemoRedirectPage() {
   useEffect(() => {
-    window.location.replace("/docs/demo/");
+    window.location.replace("/docs/react/demo/");
   }, []);
 
   return (
@@ -15,7 +15,7 @@ export default function DemoRedirectPage() {
       </p>
       <a
         className="font-medium text-fd-primary text-sm underline"
-        href="/docs/demo/"
+        href="/docs/react/demo/"
       >
         Continue to /docs/demo
       </a>

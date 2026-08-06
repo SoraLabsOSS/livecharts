@@ -8,7 +8,7 @@ import {
 } from "fumadocs-ui/layouts/docs/page";
 import { createRelativeLink } from "fumadocs-ui/mdx";
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { getMDXComponents } from "@/components/mdx";
 import { absoluteUrl, defaultTwitter, siteDescription } from "@/lib/og";
 import { appName, gitConfig } from "@/lib/shared";
@@ -16,6 +16,10 @@ import { getPageImageUrl, getPageMarkdownUrl, source } from "@/lib/source";
 
 export default async function Page(props: PageProps<"/docs/[[...slug]]">) {
   const params = await props.params;
+  if (!params.slug || params.slug.length === 0) {
+    redirect("/docs/react/");
+  }
+
   const page = source.getPage(params.slug);
   if (!page) {
     notFound();
@@ -33,7 +37,7 @@ export default async function Page(props: PageProps<"/docs/[[...slug]]">) {
       <div className="flex flex-row items-center gap-2 border-b pb-6">
         <MarkdownCopyButton markdownUrl={markdownUrl} />
         <ViewOptionsPopover
-          githubUrl={`https://github.com/${gitConfig.user}/${gitConfig.repo}/blob/${gitConfig.branch}/content/docs/${page.path}`}
+          githubUrl={`https://github.com/${gitConfig.user}/${gitConfig.repo}/blob/${gitConfig.branch}/apps/docs/content/docs/${page.path}`}
           markdownUrl={markdownUrl}
         />
       </div>
@@ -50,13 +54,20 @@ export default async function Page(props: PageProps<"/docs/[[...slug]]">) {
 }
 
 export async function generateStaticParams() {
-  return source.generateParams();
+  return [{ slug: [] }, ...source.generateParams()];
 }
 
 export async function generateMetadata(
   props: PageProps<"/docs/[[...slug]]">
 ): Promise<Metadata> {
   const params = await props.params;
+  if (!params.slug || params.slug.length === 0) {
+    return {
+      alternates: { canonical: absoluteUrl("/docs/react/") },
+      title: "Docs",
+    };
+  }
+
   const page = source.getPage(params.slug);
   if (!page) {
     notFound();

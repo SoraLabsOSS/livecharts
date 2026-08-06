@@ -1,0 +1,49 @@
+---
+title: LiveChartTransition
+description: Cross-fade between keyed chart children (Vue)
+---
+
+```ts
+import { LiveChartTransition, LiveChart } from "livecharts/vue";
+```
+
+## Props
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `active` | `string` | **required** | Key of the visible child |
+| `duration` | `number` | `300` | Cross-fade ms |
+| `class` | `string` | — | Wrapper class |
+| `style` | `StyleValue` | — | Wrapper style |
+
+Default slot children must have unique `key`s matching possible `active` values.
+
+## Example
+
+```vue
+<script setup lang="ts">
+import { LiveChart, LiveChartTransition } from "livecharts/vue";
+import { ref } from "vue";
+
+const chartType = ref<"line" | "candle">("line");
+</script>
+
+<template>
+  <div style="height: 280px">
+    <LiveChartTransition :active="chartType">
+      <LiveChart key="line" :data="data" :value="value" />
+      <LiveChart
+        key="candle"
+        mode="candle"
+        :data="data"
+        :value="value"
+        :candles="candles"
+        :live-candle="live"
+        :candle-width="60"
+      />
+    </LiveChartTransition>
+  </div>
+</template>
+```
+
+Use this for **two separate chart instances** with an opacity cross-fade. For the built-in line ↔ candle morph on one instance, prefer `mode` + `@mode-change` on a single [`LiveChart`](/docs/vue/livechart).

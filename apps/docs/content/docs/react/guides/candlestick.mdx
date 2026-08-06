@@ -1,0 +1,62 @@
+---
+title: Candlestick
+description: OHLC candles, live forming candle, and line ↔ candle morph
+---
+
+## Basic setup
+
+```tsx
+import { aggregateCandles } from "livecharts/data";
+import { LiveChart } from "livecharts/react";
+
+const width = 60; // seconds per candle
+const { candles, live } = aggregateCandles(ticks, width);
+
+<LiveChart
+  data={ticks}
+  value={ticks.at(-1)?.value ?? 0}
+  mode={mode} // "line" | "candle"
+  candles={candles}
+  liveCandle={live ?? undefined}
+  candleWidth={width}
+  onModeChange={setMode}
+  momentum={mode === "line"}
+/>
+```
+
+<CandlestickChart />
+
+## Props
+
+| Prop | Type | Role |
+| --- | --- | --- |
+| `mode` | `"line" \| "candle"` | Active view; drives morph |
+| `candles` | `CandlePoint[]` | Closed candles |
+| `liveCandle` | `CandlePoint` | Forming candle (wicks update live) |
+| `candleWidth` | `number` | Bucket width in seconds |
+| `onModeChange` | `(mode) => void` | Fired by the built-in mode toggle |
+
+When candle data is present, LiveCharts shows a **line / candle** control and morphs between views.
+
+## aggregateCandles
+
+```ts
+import { aggregateCandles } from "livecharts/data";
+
+const { candles, live } = aggregateCandles(ticks, 60);
+// candles — completed buckets
+// live — current open bucket, or null
+```
+
+Prefer this helper over hand-rolled OHLC loops so buckets stay MECE and aligned to `candleWidth`.
+
+## Deprecated aliases
+
+| Prop | Status |
+| --- | --- |
+| `lineMode` | Deprecated — prefer `mode` / `onModeChange` |
+| `lineData` / `lineValue` | Legacy overrides; use `data` / `value` |
+
+## Alternative: LiveChartTransition
+
+If you prefer two separate chart instances with a cross-fade instead of the built-in morph, use [`LiveChartTransition`](/docs/react/api/livechart-transition).

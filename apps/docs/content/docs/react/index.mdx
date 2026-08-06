@@ -1,0 +1,56 @@
+---
+title: Introduction
+description: Real-time animated canvas charts with a framework-agnostic engine
+---
+
+LiveCharts draws a **live line that moves smoothly as new data arrives**. One `<canvas>`, one `requestAnimationFrame` loop, opt-in features on top.
+
+It is built for streaming feeds — prices, sensors, heart rate, prediction markets — where the chart must feel continuous even when ticks arrive irregularly.
+
+## Why LiveCharts
+
+Most charting libraries are either too heavy for a simple live feed, or too rigid to feel alive. LiveCharts does one job well:
+
+- Interpolate toward new values at ~60fps (`lerpSpeed`, default `0.08`)
+- Snap the Y-axis outward instantly when data exceeds the range (never clip the line)
+- Keep chrome (badge, grid, value overlay) in the same motion language
+
+Everything else — momentum arrows, orderbook labels, candlesticks, multi-series, particles — is **opt-in**.
+
+## Install
+
+```package-install
+livecharts
+```
+
+## Package layout
+
+| Import | What you get |
+| --- | --- |
+| `livecharts/react` | `<LiveChart />`, `LiveChartTransition`, `useLiveChartEngine` |
+| `livecharts/vue` | `<LiveChart />`, `LiveChartTransition`, `useLiveChartEngine` |
+| `livecharts` | `LiveChartEngine`, theme helpers, shared types |
+| `livecharts/data` | `createWalker`, `aggregateCandles` (no canvas engine in the bundle) |
+
+React is a peer dependency (`react` ≥ 18) for `livecharts/react`. Vue ≥ 3.4 is optional for [`livecharts/vue`](/docs/vue/). The engine itself is framework-agnostic — see the [roadmap](/docs/react/roadmap) for Astro/HTML and design-system kits.
+
+## Feature map
+
+| Area | Start here |
+| --- | --- |
+| Install & first chart | [Getting started](/docs/react/getting-started) |
+| Points, series, candles | [Data model](/docs/react/concepts/data-model) |
+| Lerp, range, pause/resume | [Animation](/docs/react/concepts/animation) |
+| Live feeds & walkers | [Feeding data](/docs/react/guides/feeding-data) |
+| Themes & accent color | [Theming](/docs/react/guides/theming) |
+| Full prop tables | [LiveChart API](/docs/react/api/livechart) |
+
+Prefer a long-form walkthrough with live examples? Open the [interactive demo](/docs/react/demo/) — the same charts are also embedded throughout these docs.
+
+<Cards>
+  <Card title="Getting started" description="Install and render your first chart" href="/docs/react/getting-started" />
+  <Card title="LiveChart props" description="Complete React API reference" href="/docs/react/api/livechart" />
+  <Card title="Interactive demo" description="Every feature in one article" href="/docs/react/demo/" />
+  <Card title="Roadmap" description="Astro, HTML, and shadcn plans" href="/docs/react/roadmap" />
+  <Card title="Vue docs" description="Vue 3 bindings" href="/docs/vue/" />
+</Cards>

@@ -1,0 +1,57 @@
+---
+title: Loading, pause & empty
+description: Connection states and freeze/resume behavior
+---
+
+## Loading
+
+```tsx
+<LiveChart data={[]} value={0} loading />
+```
+
+Shows a breathing placeholder. When data arrives and `loading` flips to `false`, the placeholder morphs into the real chart.
+
+<LoadingChart />
+
+Typical pattern:
+
+```tsx
+const [loading, setLoading] = useState(true);
+const [data, setData] = useState<LiveChartPoint[]>([]);
+
+useEffect(() => {
+  connect().then((initial) => {
+    setData(initial);
+    setLoading(false);
+  });
+}, []);
+
+<LiveChart data={data} value={data.at(-1)?.value ?? 0} loading={loading} />
+```
+
+## Empty
+
+If `data` is empty and `loading` is `false`, the empty state renders:
+
+```tsx
+<LiveChart data={[]} value={0} emptyText="Waiting for market open" />
+```
+
+Default copy: `"No data to display"`.
+
+## Paused
+
+```tsx
+<LiveChart data={data} value={value} paused={isPaused} />
+```
+
+Freezes the scrolling view. Your feed can keep appending; resume behavior depends on how long you were paused ([Animation](/docs/react/concepts/animation)):
+
+- **In-window resume** — soft fade
+- **Beyond-window resume** — morph back from placeholder
+
+<PausedChart />
+
+## Offscreen
+
+`pauseWhenOffscreen` (default `true`) stops the animation loop while the chart is not visible. Independent of the `paused` prop.

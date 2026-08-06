@@ -6,8 +6,12 @@ Real-time animated charts. Canvas engine with framework bindings.
 
 ```bash
 npm install livecharts
-# peer: react >= 18 (for livecharts/react)
 ```
+
+Peers (optional, depending on entry):
+
+- `react` ≥ 18 for `livecharts/react`
+- `vue` ≥ 3.4 for `livecharts/vue`
 
 ## React
 
@@ -22,6 +26,25 @@ function Chart({ data, value }: { data: LiveChartPoint[]; value: number }) {
     </div>
   );
 }
+```
+
+## Vue
+
+```vue
+<script setup lang="ts">
+import { LiveChart, LiveChartTransition } from "livecharts/vue";
+import type { LiveChartPoint } from "livecharts/vue";
+import { ref } from "vue";
+
+const data = ref<LiveChartPoint[]>([]);
+const value = ref(0);
+</script>
+
+<template>
+  <div style="height: 200px">
+    <LiveChart :data="data" :value="value" />
+  </div>
+</template>
 ```
 
 ## Core (framework-agnostic)
@@ -45,8 +68,9 @@ compatibility.
 
 | Package             | Role                                      |
 | ------------------- | ----------------------------------------- |
-| `@livecharts/core`  | Canvas engine — no React                  |
-| `@livecharts/react` | `<LiveChart />` wrapper                   |
+| `@livecharts/core`  | Canvas engine — no framework              |
+| `@livecharts/react` | React `<LiveChart />` wrapper             |
+| `@livecharts/vue`   | Vue 3 `<LiveChart />` + `LiveChartTransition` |
 | `livecharts`        | Published npm package (bundles the above) |
 
 ## License

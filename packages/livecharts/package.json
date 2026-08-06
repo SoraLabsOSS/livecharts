@@ -1,6 +1,6 @@
 {
   "name": "livecharts",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "Real-time animated canvas charts — framework-agnostic engine with bindings",
   "keywords": [
     "chart",
@@ -41,6 +41,16 @@
         "default": "./dist/react/index.cjs"
       }
     },
+    "./vue": {
+      "import": {
+        "types": "./dist/vue/index.d.ts",
+        "default": "./dist/vue/index.js"
+      },
+      "require": {
+        "types": "./dist/vue/index.d.cts",
+        "default": "./dist/vue/index.cjs"
+      }
+    },
     "./data": {
       "import": {
         "types": "./dist/data/index.d.ts",
@@ -70,21 +80,27 @@
   "devDependencies": {
     "@livecharts/core": "workspace:*",
     "@livecharts/react": "workspace:*",
+    "@livecharts/vue": "workspace:*",
     "@types/react": "^19.0.0",
     "@workspace/typescript-config": "workspace:*",
     "react": "^19.0.0",
     "tsup": "^8.5.1",
-    "typescript": "5.9.2"
+    "typescript": "5.9.2",
+    "vue": "^3.5.13"
   },
   "peerDependencies": {
     "react": ">=18",
-    "react-dom": ">=18"
+    "react-dom": ">=18",
+    "vue": ">=3.4.0"
   },
   "peerDependenciesMeta": {
     "react": {
       "optional": true
     },
     "react-dom": {
+      "optional": true
+    },
+    "vue": {
       "optional": true
     }
   },

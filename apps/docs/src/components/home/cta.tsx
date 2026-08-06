@@ -31,7 +31,7 @@ export function HomeCta() {
             </p>
             <Link
               className="group inline-flex items-center gap-2 rounded-lg bg-fd-background px-6 py-2.5 font-semibold text-fd-foreground text-sm transition-all duration-200 hover:opacity-90 active:scale-95"
-              href="/docs/"
+              href="/docs/react/"
             >
               Get Started
               <ArrowRight size={16} strokeWidth={2.5} />

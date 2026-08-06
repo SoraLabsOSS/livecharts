@@ -1,0 +1,49 @@
+---
+title: Animation
+description: How LiveCharts lerps, ranges, morphs, and pauses
+---
+
+## One loop
+
+LiveCharts runs a single `requestAnimationFrame` loop on one `<canvas>`. When a new value arrives, nothing jumps: display state **lerps** toward the target.
+
+| Concept | Default | Behavior |
+| --- | --- | --- |
+| `lerpSpeed` | `0.08` | ~8% of the remaining gap per frame (frame-rate aware) |
+| Range expand | instant | Snaps outward so the line is never clipped |
+| Range shrink | lerped | Settles gently when volatility drops |
+
+The live badge, grid labels, and value overlay share the same motion language so the chart feels like one system breathing.
+
+## Adaptive speed
+
+Lerp slows on large jumps (so the tip does not teleport) and speeds up on small ticks (so micro-moves stay snappy). Spikes and calm markets both stay readable.
+
+## Loading → data morph
+
+Set `loading` while waiting for a connection. You see a breathing placeholder line. When `loading` becomes `false` and `data` arrives, the placeholder **morphs** into the real series instead of popping in.
+
+Empty `data` with `loading={false}` shows a quiet empty state. Customize the copy with `emptyText` (default `"No data to display"`).
+
+## Pause & resume
+
+`paused` freezes scrolling while your feed can keep appending history.
+
+| Pause length | Resume behavior |
+| --- | --- |
+| Short (still within the visible window) | Soft fade back to live |
+| Long (beyond the window) | Morph from the loading/placeholder shape back into live data |
+
+This matches real dashboards: glance away briefly vs leave the tab open for minutes.
+
+## Offscreen pause
+
+`pauseWhenOffscreen` (default `true`) stops the rAF loop when the chart leaves the viewport, saving CPU. Drawing resumes when it re-enters.
+
+## Window transitions
+
+Changing `window` (or picking a button from `windows`) animates the time horizon — the line does not teleport to a new scale.
+
+## Candlestick morph
+
+With candle data present, toggling `mode` between `"line"` and `"candle"` runs a built-in morph (close-price line ↔ OHLC bodies). See [Candlestick](/docs/react/guides/candlestick).

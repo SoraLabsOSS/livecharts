@@ -50,7 +50,7 @@ export function HomeHero() {
               </span>
               <Link
                 className="inline-flex items-center gap-1 px-3 py-1.5 text-[10px] text-fd-muted-foreground transition-colors hover:text-fd-foreground sm:gap-1.5 sm:px-4"
-                href="/docs/"
+                href="/docs/react/"
               >
                 Open Source
                 <ArrowUpRight className="size-3.5 shrink-0" />
@@ -80,7 +80,7 @@ export function HomeHero() {
           >
             <Link
               className="inline-flex h-11 items-center justify-center rounded-full bg-fd-primary px-6 font-semibold text-fd-primary-foreground text-sm tracking-tight transition-all hover:opacity-90 active:scale-95 md:h-12 md:px-7"
-              href="/docs/"
+              href="/docs/react/"
             >
               Get Started
             </Link>

@@ -1,0 +1,6 @@
+{
+  "title": "Vue",
+  "description": "Vue 3 bindings",
+  "root": true,
+  "pages": ["index", "getting-started", "livechart", "livechart-transition"]
+}

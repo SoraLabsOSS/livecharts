@@ -1,0 +1,54 @@
+---
+title: Vue
+description: Vue 3 bindings over the shared LiveChart engine
+---
+
+Import `<LiveChart />` from `livecharts/vue`. Same canvas engine as React — Composition API wrapper, SFC-friendly props.
+
+## Install
+
+```package-install
+livecharts
+```
+
+Peer: **Vue ≥ 3.4**.
+
+## Package layout
+
+| Import | What you get |
+| --- | --- |
+| `livecharts/vue` | `<LiveChart />`, `LiveChartTransition`, `useLiveChartEngine` |
+| `livecharts` | `LiveChartEngine`, theme helpers, shared types |
+| `livecharts/data` | `createWalker`, `aggregateCandles` |
+
+## Quick example
+
+```vue
+<script setup lang="ts">
+import { LiveChart } from "livecharts/vue";
+import type { LiveChartPoint } from "livecharts/vue";
+import { ref } from "vue";
+
+const data = ref<LiveChartPoint[]>([]);
+const value = ref(0);
+
+// push points from your feed — WebSocket, polling, etc.
+</script>
+
+<template>
+  <div style="height: 200px">
+    <LiveChart :data="data" :value="value" color="#3b82f6" theme="light" />
+  </div>
+</template>
+```
+
+The component fills its parent. Set a height on the wrapper.
+
+## Next
+
+<Cards>
+  <Card title="Getting started" description="Install, props overview, and low-level composable" href="/docs/vue/getting-started" />
+  <Card title="LiveChart API" description="Full props and events" href="/docs/vue/livechart" />
+  <Card title="LiveChartTransition" description="Cross-fade between charts" href="/docs/vue/livechart-transition" />
+  <Card title="React docs" description="Guides and live demos (same engine)" href="/docs/react/" />
+</Cards>
