@@ -60,6 +60,8 @@ export interface DrawOptions {
   chartReveal: number       // 0 = loading/morphing from center, 1 = fully revealed
   pauseProgress: number     // 0 = playing, 1 = fully paused
   now_ms: number            // performance.now() for breathing animation timing
+  /** Merge last sample Y into smoothValue (live tip). Off during pause catch-up. */
+  mergeLastWithTip?: boolean
 }
 
 /**
@@ -127,7 +129,7 @@ export function drawFrame(
 
   // 3. Line + fill (with scrub dimming + reveal morphing)
   const scrubX = opts.scrubAmount > 0.05 ? opts.hoverX : null
-  const pts = drawLine(ctx, layout, palette, opts.visible, opts.smoothValue, opts.now, opts.showFill, scrubX, opts.scrubAmount, reveal, opts.now_ms)
+  const pts = drawLine(ctx, layout, palette, opts.visible, opts.smoothValue, opts.now, opts.showFill, scrubX, opts.scrubAmount, reveal, opts.now_ms, 1, false, 1, opts.mergeLastWithTip !== false)
 
   // 4. Time axis — same timing as grid
   {

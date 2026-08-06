@@ -185,6 +185,100 @@ describe("offscreen pause", () => {
     vi.restoreAllMocks();
   });
 
+  it("snaps the live tip after a long offscreen pause", () => {
+    let now = 1000;
+    vi.spyOn(performance, "now").mockImplementation(() => now);
+
+    const { engine } = mount(
+      baseConfig({
+        value: 11,
+        data: [
+          { time: 1, value: 10 },
+          { time: 2, value: 11 },
+        ],
+      }),
+    );
+
+    flushFrames(3);
+    // Simulate a lagging tip while still on-screen
+    ;(engine as unknown as { displayValue: number }).displayValue = 50;
+
+    setIntersecting(false);
+    now = 5000; // suspended ~4s
+    engine.setConfig(
+      baseConfig({
+        value: 72.2,
+        data: [
+          { time: 1, value: 70 },
+          { time: 2, value: 72.2 },
+        ],
+      }),
+    );
+
+    setIntersecting(true);
+    expect((engine as unknown as { displayValue: number }).displayValue).toBe(72.2);
+    expect((engine as unknown as { arrowState: { up: number; down: number } }).arrowState).toEqual({
+      up: 0,
+      down: 0,
+    });
+
+    engine.destroy();
+    vi.restoreAllMocks();
+  });
+
+  it("keeps a paused freeze tip after long offscreen (no live flat line)", () => {
+    let now = 1000;
+    vi.spyOn(performance, "now").mockImplementation(() => now);
+
+    const { engine } = mount(
+      baseConfig({
+        paused: true,
+        value: 11,
+        data: [
+          { time: 1, value: 10 },
+          { time: 2, value: 11 },
+        ],
+      }),
+    );
+
+    flushFrames(3);
+    const priv = engine as unknown as {
+      displayValue: number;
+      timeDebt: number;
+      pausedData: { time: number; value: number }[] | null;
+    };
+    priv.displayValue = 11;
+    priv.timeDebt = 1.5;
+    priv.pausedData = [
+      { time: 1, value: 10 },
+      { time: 2, value: 11 },
+    ];
+
+    setIntersecting(false);
+    now = 6000; // ~5s offscreen while still paused
+    engine.setConfig(
+      baseConfig({
+        paused: true,
+        value: 99,
+        data: [
+          { time: 1, value: 10 },
+          { time: 2, value: 11 },
+          { time: 50, value: 99 },
+        ],
+      }),
+    );
+
+    setIntersecting(true);
+    // Tip stays frozen — do not snap to live 99
+    expect(priv.displayValue).toBe(11);
+    // Missed wall-clock rolled into debt so now = wall - debt stays at freeze
+    expect(priv.timeDebt).toBeCloseTo(1.5 + 5, 5);
+    expect(priv.pausedData).not.toBeNull();
+
+    engine.destroy();
+    vi.restoreAllMocks();
+  });
+
   it("keeps looping when pauseWhenOffscreen is false", () => {
     const { engine } = mount(baseConfig({ pauseWhenOffscreen: false }));
     flushFrames(1);

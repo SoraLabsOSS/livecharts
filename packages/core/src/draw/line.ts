@@ -87,15 +87,13 @@ export function drawLine(
   colorBlend: number = 1,
   skipDashLine: boolean = false,
   fillScale: number = 1,
+  /** Live tip: merge last sample Y with smoothValue. Off during pause catch-up. */
+  mergeLastWithTip: boolean = true,
 ) {
   const { h, pad, toX, toY, chartW, chartH } = layout
   const incomingAlpha = ctx.globalAlpha
 
-  // Build screen-space points: all historical data stays stable,
-  // but the LAST data point uses smoothValue for its Y (so big jumps
-  // animate smoothly instead of snapping). Its X stays at the original
-  // data time (stable, no per-frame drift — this is what killed jitter).
-  // Then append the live tip at (now, smoothValue).
+  // Build screen-space points, then append the live tip at (now, smoothValue).
   // Y is inset by half the stroke width so a value sitting on the range
   // edge (e.g. 0 after a stale range / offscreen resume) still paints —
   // a stroke centered on the clip boundary is fully clipped away while
@@ -123,15 +121,16 @@ export function drawLine(
       }
     : (rawY: number, _x: number) => rawY
 
+  // Live mode merges the last sample into smoothValue (horizontal micro-tip).
+  // Pause catch-up keeps sample Y truthful so the tip can follow the real path.
   const pts: [number, number][] = visible.map((p, i) => {
     const x = toX(p.time)
-    const y = i === visible.length - 1
-      ? morphY(clampY(toY(smoothValue)), x)
-      : morphY(clampY(toY(p.value)), x)
+    const useSmooth = mergeLastWithTip && i === visible.length - 1
+    const y = morphY(clampY(toY(useSmooth ? smoothValue : p.value)), x)
     return [x, y]
   })
   // Tip X: at reveal=0 extends to full chart width (matching loading/empty line),
-  // at reveal=1 sits at the live dot position. Smooth morph between.
+  // at reveal=1 sits at the live tip position. Smooth morph between.
   const liveTipX = toX(now)
   const fullRightX = pad.left + chartW
   const tipX = chartReveal < 1

@@ -26,8 +26,8 @@ import {
   CHART_REVEAL_SPEED,
   CHART_REVEAL_SPEED_FWD,
   PAUSE_PROGRESS_SPEED,
-  PAUSE_CATCHUP_SPEED,
-  PAUSE_CATCHUP_SPEED_FAST,
+  PAUSE_RESUME_QUIET_MAX_DEBT,
+  PAUSE_RESUME_FADE_SPEED,
   LOADING_ALPHA_SPEED,
   SERIES_TOGGLE_SPEED,
   CANDLE_LERP_SPEED,
@@ -115,10 +115,14 @@ export class LiveChartEngine {
 
   // Reveal state (loading → chart morph)
   private chartReveal = 0 // 0 = loading/empty, 1 = fully revealed
+  /** 1 = normal; dips on within-window resume for a soft fade-in. */
+  private resumeFade = 1
 
   // Pause state
   private pauseProgress = 0 // 0 = playing, 1 = fully paused
   private timeDebt = 0 // accumulated seconds behind real time
+  /** Previous frame's paused flag — detects pause→resume edges. */
+  private wasPaused = false
 
   // Data stash for reverse morph (chart → flat line when data disappears)
   private lastData: LiveChartPoint[] = []
@@ -370,6 +374,115 @@ export class LiveChartEngine {
     }
   }
 
+  private clearPauseSnapshots(): void {
+    this.pausedData = null
+    this.pausedMultiData = null
+    this.pausedCandles = null
+    this.pausedLive = null
+    this.pausedLineData = null
+    this.pausedLineValue = null
+  }
+
+  /** Snap tip / range / candle smoothers to the live config (shared by fade + morph). */
+  private snapTipToLive(): void {
+    if (!this.config) return
+    const cfg = this.config
+    this.rangeInited = false
+    this.displayValue = cfg.value
+    if (cfg.multiSeries) {
+      for (const s of cfg.multiSeries) {
+        this.displayValues.set(s.id, s.value)
+      }
+    }
+    if (cfg.liveCandle) {
+      this.closeLineSmooth = cfg.liveCandle.close
+      this.closeLineSmoothInited = true
+      this.lineSmoothClose = cfg.liveCandle.close
+    }
+    if (cfg.lineValue != null) {
+      this.lineTickSmooth = cfg.lineValue
+      this.lineTickSmoothInited = true
+    }
+    this.arrowState.up = 0
+    this.arrowState.down = 0
+  }
+
+  /** Within-window resume: jump to live and fade opacity in (no loading squiggle). */
+  private beginResumeFade(): void {
+    this.timeDebt = 0
+    this.clearPauseSnapshots()
+    this.resumeFade = 0
+    this.snapTipToLive()
+  }
+
+  /** Beyond-window resume: snap to live and morph loading → chart. */
+  private beginResumeMorph(): void {
+    this.timeDebt = 0
+    this.clearPauseSnapshots()
+    this.chartReveal = 0
+    this.resumeFade = 1
+    this.snapTipToLive()
+  }
+
+  /** Handle pause→resume edge: fade inside the window, morph when debt exceeds it. */
+  private applyPauseResumeEdge(paused: boolean): void {
+    if (!paused && this.wasPaused) {
+      const windowSecs = this.displayWindow || this.config?.windowSecs || 30
+      if (this.timeDebt > windowSecs) {
+        this.beginResumeMorph()
+      } else if (this.timeDebt > PAUSE_RESUME_QUIET_MAX_DEBT) {
+        this.beginResumeFade()
+      } else {
+        this.timeDebt = 0
+        this.clearPauseSnapshots()
+      }
+    } else if (!paused && this.timeDebt > 0.001) {
+      this.timeDebt = 0
+    }
+    this.wasPaused = paused
+  }
+
+  /**
+   * After a long tab/offscreen suspend the live tip was frozen while data kept
+   * moving. Snap smoothed values so resume doesn't animate a near-vertical
+   * stub with jittering momentum arrows at the tip.
+   *
+   * If the chart is intentionally `paused`, do not snap to live — instead
+   * roll the missed wall-clock into `timeDebt` so the freeze tip stays put.
+   * (Offscreen stops rAF, so debt would otherwise go stale and draw a long
+   * flat line from the snapshot to the live tip.)
+   */
+  private snapAfterLongSuspend(pausedFor: number): void {
+    if (pausedFor <= 250 || !this.config) return
+    const cfg = this.config
+
+    if (cfg.paused) {
+      this.timeDebt += pausedFor / 1000
+      return
+    }
+
+    // Always re-seed range — long suspend leaves a stale window that fights
+    // the live tip and reads as a jittering spike at the tip.
+    this.rangeInited = false
+    this.displayValue = cfg.value
+    if (cfg.multiSeries) {
+      for (const s of cfg.multiSeries) {
+        this.displayValues.set(s.id, s.value)
+      }
+    }
+    if (cfg.liveCandle) {
+      this.closeLineSmooth = cfg.liveCandle.close
+      this.closeLineSmoothInited = true
+      this.lineSmoothClose = cfg.liveCandle.close
+    }
+    if (cfg.lineValue != null) {
+      this.lineTickSmooth = cfg.lineValue
+      this.lineTickSmoothInited = true
+    }
+    this.arrowState.up = 0
+    this.arrowState.down = 0
+  }
+
   /**
    * Restart the rAF loop after tab/offscreen pause.
    * If we were suspended long enough that the live value left the frozen
@@ -380,13 +493,7 @@ export class LiveChartEngine {
     if (!this.running || this.isDrawSuspended() || this.raf) return
 
     if (this.drawSuspendedSince) {
-      const pausedFor = performance.now() - this.drawSuspendedSince
-      if (pausedFor > 250 && this.config) {
-        const v = this.config.value
-        if (v < this.displayMin || v > this.displayMax) {
-          this.rangeInited = false
-        }
-      }
+      this.snapAfterLongSuspend(performance.now() - this.drawSuspendedSince)
       this.drawSuspendedSince = 0
     }
 
@@ -405,6 +512,7 @@ export class LiveChartEngine {
     // Resume path when the previous frame self-stopped without an IO event
     // (e.g. pauseWhenOffscreen flipped false via setConfig).
     if (this.drawSuspendedSince) {
+      this.snapAfterLongSuspend(performance.now() - this.drawSuspendedSince)
       this.drawSuspendedSince = 0
     }
 
@@ -484,13 +592,6 @@ export class LiveChartEngine {
       }
     }
 
-    const points = isCandle ? ([] as LiveChartPoint[]) : (this.pausedData ?? cfg.data)
-    const effectiveCandles = isCandle ? (this.pausedCandles ?? (cfg.candles ?? [])) : ([] as CandlePoint[])
-    const hasMultiData = cfg.isMultiSeries && cfg.multiSeries ? cfg.multiSeries.some(s => s.data.length >= 2) : false
-    const hasData = isCandle ? effectiveCandles.length >= 2 : (hasMultiData || points.length >= 2)
-    const pad = cfg.padding
-    const chartH = h - pad.top - pad.bottom
-
     // --- Pause time management ---
     const pauseTarget = cfg.paused ? 1 : 0
     this.pauseProgress = noMotion
@@ -503,15 +604,18 @@ export class LiveChartEngine {
 
     const realDtSec = dt / 1000
     this.timeDebt += realDtSec * pauseProgress
-    // Only drain time debt when unpausing — during pausing, let it
-    // accumulate freely so the chart decelerates smoothly
-    if (!cfg.paused && this.timeDebt > 0.001) {
-      const catchUpSpeed = this.timeDebt > 10
-        ? PAUSE_CATCHUP_SPEED_FAST
-        : PAUSE_CATCHUP_SPEED
-      this.timeDebt = lerp(this.timeDebt, 0, catchUpSpeed, dt)
-      if (this.timeDebt < 0.01) this.timeDebt = 0
-    }
+    this.applyPauseResumeEdge(!!cfg.paused)
+
+    const points = isCandle ? ([] as LiveChartPoint[]) : (this.pausedData ?? cfg.data)
+    const effectiveCandles = isCandle
+      ? (this.pausedCandles ?? (cfg.candles ?? []))
+      : ([] as CandlePoint[])
+    const hasMultiData = cfg.isMultiSeries && cfg.multiSeries
+      ? cfg.multiSeries.some(s => s.data.length >= 2)
+      : false
+    const hasData = isCandle ? effectiveCandles.length >= 2 : (hasMultiData || points.length >= 2)
+    const pad = cfg.padding
+    const chartH = h - pad.top - pad.bottom
 
     // --- Loading alpha (loading ↔ empty crossfade) ---
     const loadingTarget = cfg.loading ? 1 : 0
@@ -532,6 +636,12 @@ export class LiveChartEngine {
       this.chartReveal = revealTarget
     }
     const chartReveal = this.chartReveal
+
+    this.resumeFade = noMotion
+      ? 1
+      : lerp(this.resumeFade, 1, PAUSE_RESUME_FADE_SPEED, dt)
+    if (this.resumeFade > 0.995) this.resumeFade = 1
+    const resumeFade = this.resumeFade
 
     // Reset range when reveal fully collapses — guarantees a fresh snap
     // (not a slow lerp from stale values) when data reappears.
@@ -1001,6 +1111,8 @@ export class LiveChartEngine {
       }
 
       // --- Draw ---
+      ctx.save()
+      if (resumeFade < 1) ctx.globalAlpha *= resumeFade
       drawCandleFrame(ctx, layout, cfg.palette, {
         candles: drawCandles,
         displayCandleWidth,
@@ -1043,6 +1155,7 @@ export class LiveChartEngine {
         // allowing smooth fade-out during empty→live (loadingAlpha is 0).
         showEmptyOverlay: !(cfg.loading ?? false) && loadingAlpha < 0.01,
       })
+      ctx.restore()
 
       // Badge in candle mode — only when in line mode (lineModeProg > 0.5)
       if (this.badge) {
@@ -1301,6 +1414,8 @@ export class LiveChartEngine {
     }
 
     // Draw multi-series frame
+    ctx.save()
+    if (resumeFade < 1) ctx.globalAlpha *= resumeFade
     drawMultiFrame(ctx, layout, {
       series: seriesEntries,
       now,
@@ -1325,6 +1440,7 @@ export class LiveChartEngine {
       now_ms,
       primaryPalette: cfg.palette,
     })
+    ctx.restore()
 
     // During reverse morph (chart → loading/empty), overlay the empty text
     // as chartReveal drops — identical to single-series behavior
@@ -1346,25 +1462,6 @@ export class LiveChartEngine {
 
     const effectivePoints = useStash ? this.lastData : points
 
-    // Adaptive speed + smooth value (freeze lerp when using stashed data)
-    const adaptiveSpeed = computeAdaptiveSpeed(
-      cfg.value, this.displayValue,
-      this.displayMin, this.displayMax,
-      cfg.lerpSpeed, noMotion,
-    )
-    if (!useStash) {
-      this.displayValue = lerp(this.displayValue, cfg.value, adaptiveSpeed, pausedDt)
-      // Skip snap when pausing — cfg.value keeps changing from the consumer,
-      // so the snap would cause visible jumps in a supposedly frozen chart
-      if (pauseProgress < 0.5) {
-        const prevRange = this.displayMax - this.displayMin || 1
-        if (Math.abs(this.displayValue - cfg.value) < prevRange * VALUE_SNAP_THRESHOLD) {
-          this.displayValue = cfg.value
-        }
-      }
-    }
-    const smoothValue = this.displayValue
-
     const chartW = w - pad.left - pad.right
 
     // Dynamic buffer: when badge is off, use a smaller buffer so the dot
@@ -1380,6 +1477,27 @@ export class LiveChartEngine {
     const transition = this.windowTransition
     if (hasData) this.frozenNow = Date.now() / 1000 - this.timeDebt
     const now = useStash ? this.frozenNow : Date.now() / 1000 - this.timeDebt
+
+    // Adaptive speed + smooth value (freeze lerp when using stashed data)
+    const adaptiveSpeed = computeAdaptiveSpeed(
+      cfg.value, this.displayValue,
+      this.displayMin, this.displayMax,
+      cfg.lerpSpeed, noMotion,
+    )
+    let smoothValue = this.displayValue
+    if (!useStash) {
+      this.displayValue = lerp(this.displayValue, cfg.value, adaptiveSpeed, pausedDt)
+      // Skip snap when pausing — cfg.value keeps changing from the consumer,
+      // so the snap would cause visible jumps in a supposedly frozen chart
+      if (pauseProgress < 0.5) {
+        const prevRange = this.displayMax - this.displayMin || 1
+        if (Math.abs(this.displayValue - cfg.value) < prevRange * VALUE_SNAP_THRESHOLD) {
+          this.displayValue = cfg.value
+        }
+      }
+      smoothValue = this.displayValue
+    }
+
     const windowResult = updateWindowTransition(
       cfg, transition, this.displayWindow,
       this.displayMin, this.displayMax,
@@ -1392,9 +1510,11 @@ export class LiveChartEngine {
     const rightEdge = now + windowSecs * buffer
     const leftEdge = rightEdge - windowSecs
 
-    // Filter visible points — when pausing, contract right edge to `now`
-    // so new data (with real-time timestamps) can't appear past the live dot
-    const filterRight = rightEdge - (rightEdge - now) * pauseProgress
+    // Cap at `now` while pausing so new samples can't appear past the tip.
+    const filterRight = Math.min(
+      now,
+      rightEdge - (rightEdge - now) * pauseProgress,
+    )
     const visible: LiveChartPoint[] = []
     for (const p of effectivePoints) {
       if (p.time >= leftEdge - 2 && p.time <= filterRight) {
@@ -1455,6 +1575,8 @@ export class LiveChartEngine {
     const swingMagnitude = valRange > 0 ? Math.min(recentDelta / valRange, 1) : 0
 
     // Draw canvas content (everything except badge)
+    ctx.save()
+    if (resumeFade < 1) ctx.globalAlpha *= resumeFade
     drawFrame(ctx, layout, cfg.palette, {
       visible,
       smoothValue,
@@ -1489,6 +1611,7 @@ export class LiveChartEngine {
       pauseProgress,
       now_ms,
     })
+    ctx.restore()
 
     // During morph (chart ↔ empty), overlay the gradient gap + text on
     // top of the morphing chart line. skipLine=true avoids double-drawing

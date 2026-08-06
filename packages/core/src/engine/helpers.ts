@@ -21,8 +21,10 @@ export const MOMENTUM_RED: [number, number, number] = [239, 68, 68]
 export const CHART_REVEAL_SPEED = 0.14     // data → loading/empty (reverse)
 export const CHART_REVEAL_SPEED_FWD = 0.09 // loading/empty → data (forward, slower for choreography)
 export const PAUSE_PROGRESS_SPEED = 0.12
-export const PAUSE_CATCHUP_SPEED = 0.08
-export const PAUSE_CATCHUP_SPEED_FAST = 0.22
+/** Below this debt, resume is a quiet unfreeze (no fade/morph flash). */
+export const PAUSE_RESUME_QUIET_MAX_DEBT = 0.15
+/** Opacity ease when resuming inside the visible window. */
+export const PAUSE_RESUME_FADE_SPEED = 0.14
 export const LOADING_ALPHA_SPEED = 0.14
 export const SERIES_TOGGLE_SPEED = 0.10
 

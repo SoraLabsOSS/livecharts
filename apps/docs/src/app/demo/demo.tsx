@@ -400,8 +400,8 @@ export function DemoArticle() {
 
           <p>
             <code>paused</code> freezes the chart in place while data continues
-            arriving in the background. When you resume, it catches up to real
-            time.
+            arriving in the background. Resume fades back to live inside the
+            window, or morphs from loading when the pause outlasts it.
           </p>
 
           <PausedChart />
@@ -520,7 +520,7 @@ export function DemoArticle() {
             />
             <Prop
               defaultValue="false"
-              description="Freeze chart scrolling; resume catches up to real time"
+              description="Freeze chart scrolling; resume fades in-window or morphs after longer pauses"
               name="paused"
               type="boolean"
             />
