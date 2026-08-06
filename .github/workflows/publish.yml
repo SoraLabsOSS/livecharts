@@ -4,6 +4,14 @@ on:
   push:
     tags:
       - "v*"
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag to publish (e.g. v0.0.7)"
+        required: true
+        type: string
 
 jobs:
   publish:
@@ -12,8 +20,20 @@ jobs:
       contents: write
       id-token: write
     steps:
+      - name: Resolve tag
+        id: meta
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            TAG="${{ inputs.tag }}"
+          else
+            TAG="${GITHUB_REF_NAME}"
+          fi
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "version=${TAG#v}" >> "$GITHUB_OUTPUT"
+
       - uses: actions/checkout@v4
-        # Publish the tagged commit, not main tip
+        with:
+          ref: ${{ steps.meta.outputs.tag }}
 
       - uses: oven-sh/setup-bun@v2
         with:
@@ -37,7 +57,7 @@ jobs:
       - name: Verify pack has no workspace runtime deps
         working-directory: packages/livecharts
         run: |
-          node -e "const tag=process.env.GITHUB_REF_NAME.replace(/^v/, ''); const version=require('./package.json').version; if (tag !== version) { console.error(\`tag ${tag} != package ${version}\`); process.exit(1) }"
+          node -e "const version=require('./package.json').version; const expected=process.env.EXPECTED_VERSION; if (expected !== version) { console.error(\`tag/version ${expected} != package ${version}\`); process.exit(1) }"
           npm pack --dry-run
           node -e "const p=require('./package.json'); if (JSON.stringify(p.dependencies||{}).includes('workspace:')) { console.error('workspace in dependencies'); process.exit(1) }"
           test -f dist/data/index.js
@@ -52,6 +72,8 @@ jobs:
           node -e "const s=require('fs').readFileSync('dist/react/index.js','utf8'); if(s.includes('from \"vue\"')||s.includes(\"from 'vue'\")) { console.error('react entry imports vue'); process.exit(1) }"
           node -e "const s=require('fs').readFileSync('dist/vue/index.js','utf8'); if(s.includes('from \"react\"')||s.includes(\"from 'react'\")) { console.error('vue entry imports react'); process.exit(1) }"
           rm -f livecharts-*.tgz
+        env:
+          EXPECTED_VERSION: ${{ steps.meta.outputs.version }}
 
       - name: Publish livecharts
         run: npm publish --access public --provenance
