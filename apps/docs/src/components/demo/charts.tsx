@@ -15,13 +15,15 @@ function ChartFrame({
   height,
   children,
   caption,
+  className,
 }: {
   height: number;
   children: React.ReactNode;
   caption?: string;
+  className?: string;
 }) {
   return (
-    <div className="not-prose my-8 flex flex-col gap-3">
+    <div className={className ?? "not-prose my-8 flex flex-col gap-3"}>
       <div
         className="relative w-full shrink-0 overflow-hidden"
         style={{ height }}
@@ -724,12 +726,6 @@ export function DarkChart() {
   );
 }
 
-function StressLabel({ children }: { children: React.ReactNode }) {
-  return (
-    <p className="mt-0 mb-2 text-fd-muted-foreground text-xs">{children}</p>
-  );
-}
-
 export function StressTestCharts() {
   const chartTheme = useChartTheme();
   const a = useWalker(
@@ -764,9 +760,12 @@ export function StressTestCharts() {
   );
 
   return (
-    <div className="not-prose my-8">
-      <StressLabel>Wild swings, fast updates (100ms)</StressLabel>
-      <div style={{ height: 200 }}>
+    <div className="not-prose my-8 flex flex-col gap-8">
+      <ChartFrame
+        caption="Wild swings, fast updates (100ms)"
+        className="flex flex-col gap-3"
+        height={200}
+      >
         <LiveChart
           color="#e11d48"
           data={a.data}
@@ -776,11 +775,12 @@ export function StressTestCharts() {
           theme={chartTheme}
           value={a.value}
         />
-      </div>
-      <StressLabel>
-        Near-flat, ultra-low volatility, exaggerate (150ms)
-      </StressLabel>
-      <div style={{ height: 200 }}>
+      </ChartFrame>
+      <ChartFrame
+        caption="Near-flat, ultra-low volatility, exaggerate (150ms)"
+        className="flex flex-col gap-3"
+        height={200}
+      >
         <LiveChart
           badgeVariant="minimal"
           color="#0ea5e9"
@@ -792,9 +792,12 @@ export function StressTestCharts() {
           theme={chartTheme}
           value={b.value}
         />
-      </div>
-      <StressLabel>Chaotic, huge spikes (80ms)</StressLabel>
-      <div style={{ height: 200 }}>
+      </ChartFrame>
+      <ChartFrame
+        caption="Chaotic, huge spikes (80ms)"
+        className="flex flex-col gap-3"
+        height={200}
+      >
         <LiveChart
           color="#7c3aed"
           data={c.data}
@@ -805,7 +808,7 @@ export function StressTestCharts() {
           theme={chartTheme}
           value={c.value}
         />
-      </div>
+      </ChartFrame>
     </div>
   );
 }
@@ -850,9 +853,12 @@ export function SpikyTestCharts() {
   );
 
   return (
-    <div className="not-prose my-8">
-      <StressLabel>Frequent sharp reversals (60ms updates)</StressLabel>
-      <div style={{ height: 200 }}>
+    <div className="not-prose my-8 flex flex-col gap-8">
+      <ChartFrame
+        caption="Frequent sharp reversals (60ms updates)"
+        className="flex flex-col gap-3"
+        height={200}
+      >
         <LiveChart
           color="#dc2626"
           data={a.data}
@@ -863,9 +869,12 @@ export function SpikyTestCharts() {
           theme={chartTheme}
           value={a.value}
         />
-      </div>
-      <StressLabel>Near-flat with massive isolated spikes (120ms)</StressLabel>
-      <div style={{ height: 200 }}>
+      </ChartFrame>
+      <ChartFrame
+        caption="Near-flat with massive isolated spikes (120ms)"
+        className="flex flex-col gap-3"
+        height={200}
+      >
         <LiveChart
           badgeVariant="minimal"
           color="#059669"
@@ -876,9 +885,12 @@ export function SpikyTestCharts() {
           theme={chartTheme}
           value={b.value}
         />
-      </div>
-      <StressLabel>Rapid zigzag oscillation (50ms)</StressLabel>
-      <div style={{ height: 200 }}>
+      </ChartFrame>
+      <ChartFrame
+        caption="Rapid zigzag oscillation (50ms)"
+        className="flex flex-col gap-3"
+        height={200}
+      >
         <LiveChart
           color="#7c3aed"
           data={c.data}
@@ -889,7 +901,7 @@ export function SpikyTestCharts() {
           theme={chartTheme}
           value={c.value}
         />
-      </div>
+      </ChartFrame>
     </div>
   );
 }
