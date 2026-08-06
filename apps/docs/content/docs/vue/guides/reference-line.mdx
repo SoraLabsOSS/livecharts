@@ -1,0 +1,34 @@
+---
+title: Reference line
+description: Horizontal threshold with optional label
+---
+
+## Usage
+
+```vue
+<LiveChart
+  :data="data"
+  :value="value"
+  :reference-line="{ value: 100_000, label: 'Strike' }"
+  :format-value="(v) => v.toLocaleString()"
+  :windows="[
+    { label: '1m', secs: 60 },
+    { label: '5m', secs: 300 },
+  ]"
+/>
+```
+
+```ts
+type ReferenceLine = {
+  value: number;
+  label?: string;
+};
+```
+
+Draws a horizontal guide at a fixed Y value — useful for strike prices, SLAs, heart-rate zones, or prediction-market thresholds.
+
+Live preview uses the shared engine via React bindings; copy the Vue snippet above.
+
+<BitcoinChart />
+
+Colors come from the theme palette (`refLine`, `refLabel`), not the accent, so the guide stays secondary to the live series.

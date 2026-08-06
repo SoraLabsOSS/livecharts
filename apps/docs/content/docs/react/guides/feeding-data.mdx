@@ -1,0 +1,69 @@
+---
+title: Feeding live data
+description: WebSockets, polling, createWalker, and irregular intervals
+---
+
+## Push model
+
+LiveCharts is a **push** chart: you update `data` and `value` whenever you have a new reading. The engine interpolates between paints.
+
+```tsx
+function onTick(price: number) {
+  const time = Date.now() / 1000;
+  setData((prev) => {
+    const next = [...prev, { time, value: price }];
+    const cutoff = time - 120; // keep 2 minutes
+    return next.filter((p) => p.time >= cutoff);
+  });
+  setValue(price);
+}
+```
+
+## createWalker
+
+`createWalker` from `livecharts/data` builds a seeded random walk for demos and stress tests:
+
+```ts
+import { createWalker } from "livecharts/data";
+
+const walker = createWalker({
+  start: 100,
+  damping: 0.95, // velocity decay
+  volatility: 0.02, // step noise
+  spikeProbability: 0.005,
+  spikeMagnitude: 0.1,
+  min: 0,
+  max: 200,
+  historyDuration: 30, // seed window (seconds)
+  historyPoints: 300,
+  trimAfter: 45, // drop older points on tick
+});
+
+const { history, value } = walker.tick();
+```
+
+Call `tick()` on an interval (or randomly) and pass the result into `<LiveChart />`.
+
+Full options: [Data helpers](/docs/react/api/data-helpers).
+
+## Irregular intervals
+
+Real feeds are gappy: reconnects, batch flushes, mobile stalls. LiveCharts still interpolates across uneven gaps. You do **not** need to densify ticks client-side unless you want a denser trail for scrubbing.
+
+Patterns that work well:
+
+| Pattern | Approach |
+| --- | --- |
+| WebSocket | Append on each message; trim by time |
+| Polling | Replace or append on response |
+| Bursts | Append many points with real timestamps; don’t fake even spacing |
+| Gaps | Leave the hole — the line spans it smoothly |
+
+## Always pass `value`
+
+Even if the latest point is in `data`, pass `value` every render. The live tip, badge, and overlays key off it.
+
+## Multi-series & candles
+
+- Multi-series: update each series’ `data`/`value` together.
+- Candles: keep tick history for the line morph, and rebuild `candles` / `liveCandle` with `aggregateCandles` when the forming bucket changes.

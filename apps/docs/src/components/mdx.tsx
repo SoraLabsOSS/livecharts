@@ -1,6 +1,7 @@
 import { Tab, Tabs } from "fumadocs-ui/components/tabs";
 import defaultMdxComponents from "fumadocs-ui/mdx";
 import type { MDXComponents } from "mdx/types";
+import { BundleSizeTable } from "@/components/bundle-size-table";
 import {
   BasicChart,
   BitcoinChart,
@@ -26,6 +27,7 @@ export function getMDXComponents(components?: MDXComponents) {
     ...defaultMdxComponents,
     BasicChart,
     BitcoinChart,
+    BundleSizeTable,
     CandlestickChart,
     CpuChart,
     DarkChart,

@@ -1,0 +1,67 @@
+---
+title: Loading, pause & empty
+description: Connection states and freeze/resume behavior
+---
+
+## Loading
+
+```vue
+<LiveChart :data="[]" :value="0" loading />
+```
+
+Shows a breathing placeholder. When data arrives and `loading` flips to `false`, the placeholder morphs into the real chart.
+
+Live preview uses the shared engine via React bindings; copy the Vue snippet above.
+
+<LoadingChart />
+
+Typical pattern:
+
+```vue
+<script setup lang="ts">
+import type { LiveChartPoint } from "livecharts/vue";
+import { onMounted, ref } from "vue";
+
+const loading = ref(true);
+const data = ref<LiveChartPoint[]>([]);
+const value = ref(0);
+
+onMounted(async () => {
+  const initial = await connect();
+  data.value = initial;
+  value.value = initial.at(-1)?.value ?? 0;
+  loading.value = false;
+});
+</script>
+
+<template>
+  <LiveChart :data="data" :value="value" :loading="loading" />
+</template>
+```
+
+## Empty
+
+If `data` is empty and `loading` is `false`, the empty state renders:
+
+```vue
+<LiveChart :data="[]" :value="0" empty-text="Waiting for market open" />
+```
+
+Default copy: `"No data to display"`.
+
+## Paused
+
+```vue
+<LiveChart :data="data" :value="value" :paused="isPaused" />
+```
+
+Freezes the scrolling view. Your feed can keep appending; resume behavior depends on how long you were paused ([Animation](/docs/react/concepts/animation)):
+
+- **In-window resume** — soft fade
+- **Beyond-window resume** — morph back from placeholder
+
+<PausedChart />
+
+## Offscreen
+
+`pauseWhenOffscreen` (default `true`) stops the animation loop while the chart is not visible. Independent of the `paused` prop.

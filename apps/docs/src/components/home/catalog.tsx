@@ -42,7 +42,7 @@ export function HomeCatalog() {
           <Button
             className="whitespace-nowrap"
             nativeButton={false}
-            render={<Link href="/docs/demo/" />}
+            render={<Link href="/docs/react/demo/" />}
             size="sm"
             type="button"
             variant="ghost"
@@ -52,7 +52,7 @@ export function HomeCatalog() {
         </div>
 
         <div className={styles.fadeUp} style={{ animationDelay: "0.1s" }}>
-          <Link className="group block" href="/docs/demo/">
+          <Link className="group block" href="/docs/react/demo/">
             <div className="relative mb-3 aspect-video overflow-hidden rounded-lg border border-fd-border bg-fd-muted transition-all duration-200 group-hover:border-fd-border group-hover:shadow-md">
               <div className="absolute inset-0 p-4 md:p-6">
                 <LiveChart

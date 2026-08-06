@@ -1,0 +1,51 @@
+---
+title: Multi-series
+description: Overlapping lines, colors, and toggle chips
+---
+
+## Usage
+
+```vue
+<LiveChart
+  :data="[]"
+  :value="0"
+  :series="[
+    {
+      id: 'a',
+      label: 'Team A',
+      color: '#3b82f6',
+      data: seriesA,
+      value: valueA,
+    },
+    {
+      id: 'b',
+      label: 'Team B',
+      color: '#ef4444',
+      data: seriesB,
+      value: valueB,
+    },
+  ]"
+  @series-toggle="(id, visible) => console.log(id, visible)"
+  :series-toggle-compact="false"
+/>
+```
+
+Live preview uses the shared engine via React bindings; copy the Vue snippet above.
+
+<MultiSeriesChart />
+
+When `series` is non-empty it **overrides** single-series `data` / `value` / `color` for drawing.
+
+## Toggle UI
+
+- Chips appear automatically for 2+ series
+- Click to hide/show a line
+- **You cannot hide the last visible series**
+- `seriesToggleCompact` densifies the chip row
+- `@series-toggle` emits `(id, visible)` for analytics or URL state
+
+## Colors
+
+Provide `color` per series, or lean on [`SERIES_COLORS`](/docs/react/api/theme) via `resolveSeriesPalettes`.
+
+Each series gets its own tip/dot and palette (fill, glow) derived like single-series theming.

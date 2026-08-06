@@ -1,0 +1,15 @@
+{
+  "title": "React",
+  "description": "React bindings and live demos",
+  "root": true,
+  "pages": [
+    "index",
+    "getting-started",
+    "demo",
+    "concepts",
+    "guides",
+    "api",
+    "recipes",
+    "roadmap"
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "name": "@livecharts/vue",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Vue bindings for LiveCharts",
+  "license": "MIT",
+  "sideEffects": false,
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    },
+    "./package.json": "./package.json"
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "check-types": "tsc --noEmit",
+    "dev": "tsup --watch",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@livecharts/core": "workspace:*"
+  },
+  "devDependencies": {
+    "@vue/test-utils": "^2.4.6",
+    "@workspace/typescript-config": "workspace:*",
+    "jsdom": "^30.0.1",
+    "tsup": "^8.5.1",
+    "typescript": "5.9.2",
+    "vitest": "^4.1.10",
+    "vue": "^3.5.13"
+  },
+  "peerDependencies": {
+    "vue": ">=3.4.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

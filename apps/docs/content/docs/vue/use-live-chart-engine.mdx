@@ -1,0 +1,43 @@
+---
+title: useLiveChartEngine
+description: Low-level Vue composable over LiveChartEngine
+---
+
+```ts
+import { useLiveChartEngine } from "livecharts/vue";
+```
+
+Thin adapter: mounts an engine once, pushes config reactively, destroys on unmount.
+
+```vue
+<script setup lang="ts">
+import { resolveTheme } from "livecharts";
+import { useLiveChartEngine } from "livecharts/vue";
+import { ref } from "vue";
+
+const canvasRef = ref<HTMLCanvasElement | null>(null);
+const containerRef = ref<HTMLDivElement | null>(null);
+const valueDisplayRef = ref<HTMLSpanElement | null>(null);
+
+useLiveChartEngine(canvasRef, containerRef, () => ({
+  data: data.value,
+  value: value.value,
+  palette: resolveTheme("#3b82f6", "light"),
+  windowSecs: 30,
+  lerpSpeed: 0.08,
+  valueDisplayRef,
+  // …other EngineConfig fields
+}));
+</script>
+
+<template>
+  <div ref="containerRef" style="position: relative; height: 240px">
+    <canvas ref="canvasRef" />
+    <span ref="valueDisplayRef" />
+  </div>
+</template>
+```
+
+Pass a **getter** (or reactive factory) so config stays fresh when `data` / `value` change. Prefer `<LiveChart />` unless you need custom DOM around the canvas.
+
+Full `EngineConfig` surface: [LiveChartEngine](/docs/react/api/livechart-engine).

@@ -1,0 +1,17 @@
+{
+  "title": "Guides",
+  "pages": [
+    "feeding-data",
+    "theming",
+    "momentum",
+    "value-overlay",
+    "time-windows",
+    "scrubbing",
+    "reference-line",
+    "orderbook",
+    "candlestick",
+    "multi-series",
+    "states",
+    "effects"
+  ]
+}

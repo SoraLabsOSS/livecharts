@@ -1,0 +1,37 @@
+---
+title: Orderbook stream
+description: Live line with floating bid/ask labels
+---
+
+```tsx
+function OrderbookChart() {
+  const { data, value } = useLiveTicks();
+  const [book, setBook] = useState<OrderbookData>({ bids: [], asks: [] });
+
+  useEffect(() => {
+    // rebuild depth each tick / book update
+    setBook(makeOrderbook(value));
+  }, [value]);
+
+  return (
+    <div style={{ height: 280 }}>
+      <LiveChart
+        data={data}
+        value={value}
+        orderbook={book}
+        theme="dark"
+        color="#22c55e"
+        momentum
+      />
+    </div>
+  );
+}
+```
+
+<OrderbookChart />
+
+`makeOrderbook` is your feed adapter — map exchange depth into `[price, size][]` for bids and asks.
+
+Stream speed follows momentum and churn automatically; you only push fresh `orderbook` objects.
+
+Full behavior: [Orderbook guide](/docs/react/guides/orderbook).

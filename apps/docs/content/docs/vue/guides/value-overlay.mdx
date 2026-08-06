@@ -1,0 +1,36 @@
+---
+title: Value overlay
+description: Large live number via DOM, not Vue re-renders
+---
+
+## showValue
+
+```vue
+<LiveChart
+  :data="data"
+  :value="value"
+  show-value
+  value-momentum-color
+  :format-value="(v) => v.toFixed(2)"
+  :badge="false"
+  style="height: 100%"
+/>
+```
+
+| Prop | Default | Role |
+| --- | --- | --- |
+| `showValue` | `false` | Large centered (or layout-aware) live number |
+| `valueMomentumColor` | `false` | Tint the number with momentum green/red |
+| `formatValue` | `v.toFixed(2)` | Shared with badge & tooltips |
+
+Live preview uses the shared engine via React bindings; copy the Vue snippet above.
+
+<ValueOverlayChart />
+
+Updates run at frame rate through a DOM node owned by the engine — toggling `showValue` does **not** force Vue to re-render every frame.
+
+## Layout tips
+
+- Leave vertical room if you also show `windows` or mode toggles (`style` / padding).
+- Often disable `badge` when the overlay is the primary readout.
+- Pair with `theme` so contrast holds on light and dark surfaces.

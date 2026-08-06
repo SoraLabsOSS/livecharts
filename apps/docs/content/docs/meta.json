@@ -1,13 +1,3 @@
 {
-  "title": "Documentation",
-  "pages": [
-    "index",
-    "getting-started",
-    "demo",
-    "concepts",
-    "guides",
-    "api",
-    "recipes",
-    "roadmap"
-  ]
+  "pages": ["react", "vue"]
 }

@@ -20,14 +20,15 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "weekly",
       lastModified: now,
       priority: 0.9,
-      url: absoluteUrl("/docs"),
+      url: absoluteUrl("/docs/react"),
     },
   ];
 
   const docRoutes: MetadataRoute.Sitemap = source.getPages().map((page) => ({
     changeFrequency: "weekly" as const,
     lastModified: now,
-    priority: page.url === "/docs" || page.url === "/docs/" ? 0.9 : 0.7,
+    priority:
+      page.url === "/docs/react" || page.url === "/docs/react/" ? 0.9 : 0.7,
     url: absoluteUrl(page.url.endsWith("/") ? page.url : `${page.url}/`),
   }));
 

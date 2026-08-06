@@ -1,0 +1,51 @@
+---
+title: Scrubbing
+description: Crosshair, tooltips, hover events, and cursor
+---
+
+## scrub
+
+```vue
+<LiveChart :data="data" :value="value" scrub />
+<LiveChart :data="data" :value="value" :scrub="false" />
+```
+
+When enabled (default), hovering shows a crosshair with time and value tooltips. The tip lerps toward the scrub target so motion stays soft.
+
+## Tooltip props
+
+| Prop / event | Default | Role |
+| --- | --- | --- |
+| `tooltipY` | `14` | Vertical offset for the tooltip stack |
+| `tooltipOutline` | `true` | Outline / border on tooltip chrome |
+| `formatTime` | `HH:MM:SS` | Formats unix seconds for the time label |
+| `formatValue` | `v.toFixed(2)` | Formats the value label |
+| `cursor` | `"crosshair"` | CSS cursor on the chart surface |
+| `@hover` | — | `(point: HoverPoint \| null) => void` |
+
+```ts
+type HoverPoint = {
+  time: number;
+  value: number;
+  x: number;
+  y: number;
+};
+```
+
+```vue
+<LiveChart
+  :data="data"
+  :value="value"
+  @hover="(point) => (hovered = point)"
+/>
+```
+
+`@hover` emits `null` when the pointer leaves.
+
+## Multi-series scrubbing
+
+In multi-series mode the crosshair can surface multiple values at the scrub time. Series visibility still respects toggle chips.
+
+## Disable for kiosk / overlay UIs
+
+Set `:scrub="false"` and optionally `cursor="default"` when the chart is decorative or covered by another interaction layer.

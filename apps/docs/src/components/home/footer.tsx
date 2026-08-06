@@ -3,8 +3,8 @@ import Link from "next/link";
 import { appName, gitConfig } from "@/lib/shared";
 
 const FOOTER_PRODUCT = [
-  { disabled: false, href: "/docs/", label: "Docs" },
-  { disabled: false, href: "/docs/demo/", label: "Demo" },
+  { disabled: false, href: "/docs/react/", label: "Docs" },
+  { disabled: false, href: "/docs/react/demo/", label: "Demo" },
   {
     disabled: false,
     href: `https://github.com/${gitConfig.user}/${gitConfig.repo}`,

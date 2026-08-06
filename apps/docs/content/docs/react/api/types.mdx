@@ -1,0 +1,114 @@
+---
+title: Types
+description: Shared TypeScript types from livecharts
+---
+
+Import from `livecharts` or `livecharts/react` (re-exported).
+
+## LiveChartPoint
+
+```ts
+interface LiveChartPoint {
+  time: number; // unix seconds
+  value: number;
+}
+```
+
+## LiveChartSeries
+
+```ts
+interface LiveChartSeries {
+  id: string;
+  data: LiveChartPoint[];
+  value: number;
+  color: string;
+  label?: string;
+}
+```
+
+## CandlePoint
+
+```ts
+interface CandlePoint {
+  time: number; // open time, unix seconds
+  open: number;
+  high: number;
+  low: number;
+  close: number;
+}
+```
+
+## Momentum / ThemeMode / WindowStyle / BadgeVariant
+
+```ts
+type Momentum = "up" | "down" | "flat";
+type ThemeMode = "light" | "dark";
+type WindowStyle = "default" | "rounded" | "text";
+type BadgeVariant = "default" | "minimal";
+```
+
+## ReferenceLine
+
+```ts
+interface ReferenceLine {
+  value: number;
+  label?: string;
+}
+```
+
+## HoverPoint
+
+```ts
+interface HoverPoint {
+  time: number;
+  value: number;
+  x: number;
+  y: number;
+}
+```
+
+## Padding
+
+```ts
+interface Padding {
+  top?: number;
+  right?: number;
+  bottom?: number;
+  left?: number;
+}
+```
+
+## WindowOption
+
+```ts
+interface WindowOption {
+  label: string;
+  secs: number;
+}
+```
+
+## OrderbookData
+
+```ts
+interface OrderbookData {
+  bids: [number, number][]; // [price, size]
+  asks: [number, number][];
+}
+```
+
+## DegenOptions
+
+```ts
+interface DegenOptions {
+  scale?: number; // particle multiplier (default 1)
+  downMomentum?: boolean; // particles on down swings (default false)
+}
+```
+
+## LiveChartPalette
+
+Derived by [`resolveTheme`](/docs/react/api/theme). Fields include line/fill, grid, dots/glows, badge, dash, reference, time labels, crosshair/tooltip, `bgRgb`, and font stacks (`labelFont`, `valueFont`, `badgeFont`).
+
+## ChartLayout
+
+Internal layout helpers (`w`, `h`, padding, `toX` / `toY`, value range). Useful if you build custom engines on top of shared math; not required for `<LiveChart />`.

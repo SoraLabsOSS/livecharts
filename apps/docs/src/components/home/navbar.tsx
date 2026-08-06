@@ -75,7 +75,7 @@ export function HomeNavbar() {
               <Button
                 className="rounded-full"
                 nativeButton={false}
-                render={<Link href="/docs/" />}
+                render={<Link href="/docs/react/" />}
                 size="sm"
                 variant="default"
               >
@@ -123,7 +123,7 @@ export function HomeNavbar() {
             className="justify-start rounded-full"
             nativeButton={false}
             onClick={() => setMobileOpen(false)}
-            render={<Link href="/docs/" />}
+            render={<Link href="/docs/react/" />}
             size="lg"
             variant="default"
           >
