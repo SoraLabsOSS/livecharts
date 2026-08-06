@@ -122,7 +122,15 @@ export function LiveChart({
   const momentumOverride: Momentum | undefined =
     typeof momentum === "string" ? momentum : undefined;
 
-  const defaultRight = badge ? 80 : grid ? 54 : 12;
+  const defaultRight = isMultiSeries
+    ? grid
+      ? 54
+      : 12
+    : badge
+      ? 80
+      : grid
+        ? 54
+        : 12;
   const pad = {
     top: paddingOverride?.top ?? 12,
     right: paddingOverride?.right ?? defaultRight,
@@ -255,13 +263,22 @@ export function LiveChart({
   const inactiveColor = isDark ? "rgba(255,255,255,0.25)" : "rgba(0,0,0,0.22)";
 
   return (
-    <>
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        width: "100%",
+        height: "100%",
+        minHeight: 0,
+      }}
+    >
       {/* Live value display — above the chart */}
       {showValue && (
         <span
           ref={valueDisplayRef}
           style={{
             display: "block",
+            flexShrink: 0,
             fontSize: 20,
             fontWeight: 500,
             fontFamily: '"SF Mono", Menlo, monospace',
@@ -282,6 +299,7 @@ export function LiveChart({
         <div
           style={{
             display: "flex",
+            flexShrink: 0,
             alignItems: "center",
             gap: 6,
             marginBottom: 6,
@@ -578,7 +596,8 @@ export function LiveChart({
         className={className}
         style={{
           width: "100%",
-          height: "100%",
+          flex: 1,
+          minHeight: 0,
           position: "relative",
           ...style,
         }}
@@ -588,6 +607,6 @@ export function LiveChart({
           style={{ display: "block", cursor: cursorStyle }}
         />
       </div>
-    </>
+    </div>
   );
 }

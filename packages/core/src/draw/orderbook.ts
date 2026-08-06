@@ -37,17 +37,6 @@ const MIN_LABEL_GAP = 22 // px
 const BASE_SPEED = 60 // px/s calm
 const MAX_SPEED = 160 // px/s during big activity
 
-function mixColor(
-  from: [number, number, number],
-  to: [number, number, number],
-  t: number,
-): string {
-  const r = Math.round(from[0] + (to[0] - from[0]) * t)
-  const g = Math.round(from[1] + (to[1] - from[1]) * t)
-  const b = Math.round(from[2] + (to[2] - from[2]) * t)
-  return `rgb(${r},${g},${b})`
-}
-
 /**
  * Kalshi-style orderbook: left-aligned column spanning full chart height.
  * Labels decelerate as they rise — fast entry at bottom, slow drift at top.
@@ -161,15 +150,19 @@ export function drawOrderbook(
   }
   state.labels.length = writeIdx
 
-  // Draw
+  // Draw — fade with alpha (keep hue) and a soft blur shadow instead of an
+  // opaque bgRgb strokeText halo, which reads as a black pill when the canvas
+  // is transparent over a page background that isn't exactly bgRgb.
   const baseAlpha = ctx.globalAlpha
+  const isDark = bg[0] * 0.299 + bg[1] * 0.587 + bg[2] * 0.114 < 128
   ctx.save()
   ctx.font = '600 13px "SF Mono", Menlo, monospace'
   ctx.textAlign = 'left'
   ctx.textBaseline = 'middle'
-  ctx.globalAlpha = baseAlpha
-
-  const outlineColor = `rgb(${bg[0]},${bg[1]},${bg[2]})`
+  ctx.shadowColor = isDark ? 'rgba(0,0,0,0.4)' : 'rgba(255,255,255,0.75)'
+  ctx.shadowBlur = 3
+  ctx.shadowOffsetX = 0
+  ctx.shadowOffsetY = 0
 
   for (let i = 0; i < state.labels.length; i++) {
     const l = state.labels[i]
@@ -180,16 +173,12 @@ export function drawOrderbook(
     const yRatio = (l.y - topY) / chartH
     const fadeOut = yRatio < 0.45 ? yRatio / 0.45 : 1
 
-    const colorStrength = l.intensity * fadeIn * fadeOut
+    const alpha = l.intensity * fadeIn * fadeOut
+    if (alpha <= 0.02) continue
+
     const baseColor = l.green ? GREEN : RED
-    const fillColor = mixColor(baseColor, bg, 1 - colorStrength)
-
-    ctx.strokeStyle = outlineColor
-    ctx.lineWidth = 4
-    ctx.lineJoin = 'round'
-    ctx.strokeText(l.text, labelX, l.y)
-
-    ctx.fillStyle = fillColor
+    ctx.globalAlpha = baseAlpha * Math.min(1, alpha)
+    ctx.fillStyle = `rgb(${baseColor[0]},${baseColor[1]},${baseColor[2]})`
     ctx.fillText(l.text, labelX, l.y)
   }
 

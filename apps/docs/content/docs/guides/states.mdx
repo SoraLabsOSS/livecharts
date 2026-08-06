@@ -11,6 +11,8 @@ description: Connection states and freeze/resume behavior
 
 Shows a breathing placeholder. When data arrives and `loading` flips to `false`, the placeholder morphs into the real chart.
 
+<LoadingChart />
+
 Typical pattern:
 
 ```tsx
@@ -47,6 +49,8 @@ Freezes the scrolling view. Your feed can keep appending; resume behavior depend
 
 - **In-window resume** — soft fade
 - **Beyond-window resume** — morph back from placeholder
+
+<PausedChart />
 
 ## Offscreen
 

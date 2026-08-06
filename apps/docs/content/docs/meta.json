@@ -3,10 +3,10 @@
   "pages": [
     "index",
     "getting-started",
+    "demo",
     "concepts",
     "guides",
     "api",
-    "recipes",
-    "external:[Interactive demo](/demo/)"
+    "recipes"
   ]
 }

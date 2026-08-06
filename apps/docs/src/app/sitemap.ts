@@ -22,12 +22,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.9,
       url: absoluteUrl("/docs"),
     },
-    {
-      changeFrequency: "weekly",
-      lastModified: now,
-      priority: 0.8,
-      url: absoluteUrl("/demo"),
-    },
   ];
 
   const docRoutes: MetadataRoute.Sitemap = source.getPages().map((page) => ({

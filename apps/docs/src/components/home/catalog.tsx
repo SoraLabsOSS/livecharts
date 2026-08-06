@@ -4,7 +4,8 @@ import { Button } from "@workspace/ui/components/ui/button";
 import { useTheme } from "fumadocs-ui/provider/base";
 import { LiveChart } from "livecharts/react";
 import { ArrowUpRight } from "lucide-react";
-import { useWalker } from "@/app/demo/walk";
+import Link from "next/link";
+import { useWalker } from "@/components/demo/walk";
 import styles from "./home.module.css";
 
 export function HomeCatalog() {
@@ -39,9 +40,9 @@ export function HomeCatalog() {
             </p>
           </div>
           <Button
-            aria-disabled
-            className="pointer-events-none whitespace-nowrap"
-            disabled
+            className="whitespace-nowrap"
+            nativeButton={false}
+            render={<Link href="/docs/demo/" />}
             size="sm"
             type="button"
             variant="ghost"
@@ -51,8 +52,8 @@ export function HomeCatalog() {
         </div>
 
         <div className={styles.fadeUp} style={{ animationDelay: "0.1s" }}>
-          <div aria-disabled className="pointer-events-none block opacity-80">
-            <div className="relative mb-3 aspect-video overflow-hidden rounded-lg border border-fd-border bg-fd-muted">
+          <Link className="group block" href="/docs/demo/">
+            <div className="relative mb-3 aspect-video overflow-hidden rounded-lg border border-fd-border bg-fd-muted transition-all duration-200 group-hover:border-fd-border group-hover:shadow-md">
               <div className="absolute inset-0 p-4 md:p-6">
                 <LiveChart
                   color="#2563eb"
@@ -68,14 +69,14 @@ export function HomeCatalog() {
               </div>
             </div>
             <div className="flex items-center justify-between">
-              <span className="font-medium text-fd-muted-foreground text-sm">
+              <span className="font-medium text-fd-foreground text-sm transition-colors group-hover:text-fd-primary">
                 Live line chart
               </span>
               <span className="ml-2 whitespace-nowrap text-fd-muted-foreground text-xs tabular-nums">
-                Coming soon
+                Full demo
               </span>
             </div>
-          </div>
+          </Link>
         </div>
       </section>
     </div>

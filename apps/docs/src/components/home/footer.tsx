@@ -4,7 +4,7 @@ import { appName, gitConfig } from "@/lib/shared";
 
 const FOOTER_PRODUCT = [
   { disabled: false, href: "/docs/", label: "Docs" },
-  { disabled: true, href: "/demo/", label: "Demo" },
+  { disabled: false, href: "/docs/demo/", label: "Demo" },
   {
     disabled: false,
     href: `https://github.com/${gitConfig.user}/${gitConfig.repo}`,

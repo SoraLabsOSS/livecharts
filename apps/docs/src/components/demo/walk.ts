@@ -1,8 +1,15 @@
 "use client";
 
+import { useTheme } from "fumadocs-ui/provider/base";
 import { createWalker, type WalkerConfig } from "livecharts/data";
-import type { LiveChartPoint } from "livecharts/react";
+import type { LiveChartPoint, ThemeMode } from "livecharts/react";
 import { useEffect, useRef, useState } from "react";
+
+/** Chart theme that follows the Fumadocs / next-themes site theme. */
+export function useChartTheme(): ThemeMode {
+  const { resolvedTheme } = useTheme();
+  return resolvedTheme === "dark" ? "dark" : "light";
+}
 
 export function useWalker(
   config: WalkerConfig,

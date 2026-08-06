@@ -9,7 +9,7 @@ import type {
 } from "livecharts/react";
 import { LiveChart } from "livecharts/react";
 import { useEffect, useState } from "react";
-import { makeOrderbook, useWalker } from "./walk";
+import { makeOrderbook, useChartTheme, useWalker } from "./walk";
 
 function ChartFrame({
   height,
@@ -21,17 +21,15 @@ function ChartFrame({
   caption?: string;
 }) {
   return (
-    <div style={{ marginBottom: "3rem", marginTop: "2rem" }}>
-      <div style={{ height }}>{children}</div>
+    <div className="not-prose my-8 flex flex-col gap-3">
+      <div
+        className="relative w-full shrink-0 overflow-hidden"
+        style={{ height }}
+      >
+        {children}
+      </div>
       {caption ? (
-        <p
-          style={{
-            color: "rgba(0, 0, 0, 0.40)",
-            fontSize: "0.75rem",
-            margin: "3.5rem 0 0",
-            textAlign: "center",
-          }}
-        >
+        <p className="m-0 shrink-0 text-center text-fd-muted-foreground text-xs leading-relaxed">
           {caption}
         </p>
       ) : null}
@@ -40,6 +38,7 @@ function ChartFrame({
 }
 
 export function HeroChart() {
+  const chartTheme = useChartTheme();
   const { data, value } = useWalker({
     damping: 0.85,
     max: 999,
@@ -62,7 +61,7 @@ export function HeroChart() {
         exaggerate
         momentum
         padding={{ left: 0 }}
-        theme="light"
+        theme={chartTheme}
         value={value}
       />
     </ChartFrame>
@@ -70,6 +69,7 @@ export function HeroChart() {
 }
 
 export function BasicChart() {
+  const chartTheme = useChartTheme();
   const { data, value } = useWalker({
     damping: 0.95,
     start: 50,
@@ -82,7 +82,7 @@ export function BasicChart() {
         color="#3b82f6"
         data={data}
         padding={{ left: 0 }}
-        theme="light"
+        theme={chartTheme}
         value={value}
       />
     </ChartFrame>
@@ -90,6 +90,7 @@ export function BasicChart() {
 }
 
 export function HeartRateChart() {
+  const chartTheme = useChartTheme();
   const { data, value } = useWalker({
     damping: 0.98,
     max: 100,
@@ -113,7 +114,7 @@ export function HeartRateChart() {
         lineWidth={2.5}
         momentum={false}
         padding={{ left: 0 }}
-        theme="light"
+        theme={chartTheme}
         value={value}
       />
     </ChartFrame>
@@ -121,6 +122,7 @@ export function HeartRateChart() {
 }
 
 export function MomentumChart() {
+  const chartTheme = useChartTheme();
   const { data, value } = useWalker({
     damping: 0.94,
     spikeMagnitude: 0.08,
@@ -140,7 +142,7 @@ export function MomentumChart() {
         exaggerate
         momentum
         padding={{ left: 0 }}
-        theme="light"
+        theme={chartTheme}
         value={value}
       />
     </ChartFrame>
@@ -148,6 +150,7 @@ export function MomentumChart() {
 }
 
 export function ValueOverlayChart() {
+  const chartTheme = useChartTheme();
   const { data, value } = useWalker({
     damping: 0.96,
     start: 2847.3,
@@ -166,8 +169,7 @@ export function ValueOverlayChart() {
         formatValue={(v) => `$${v.toFixed(2)}`}
         padding={{ left: 0 }}
         showValue
-        style={{ height: "calc(100% - 36px)" }}
-        theme="light"
+        theme={chartTheme}
         value={value}
         valueMomentumColor
       />
@@ -176,6 +178,7 @@ export function ValueOverlayChart() {
 }
 
 export function CpuChart() {
+  const chartTheme = useChartTheme();
   const { data, value } = useWalker({
     damping: 0.94,
     historyDuration: 300,
@@ -199,7 +202,7 @@ export function CpuChart() {
         formatValue={(v) => `${v.toFixed(0)}%`}
         momentum={false}
         padding={{ left: 0 }}
-        theme="light"
+        theme={chartTheme}
         value={value}
         windowStyle="rounded"
         windows={[
@@ -212,6 +215,7 @@ export function CpuChart() {
 }
 
 export function BitcoinChart() {
+  const chartTheme = useChartTheme();
   const { data, value } = useWalker({
     damping: 0.95,
     historyDuration: 600,
@@ -238,7 +242,7 @@ export function BitcoinChart() {
         }
         padding={{ left: 0 }}
         referenceLine={{ label: "Above $67,500", value: 67_500 }}
-        theme="light"
+        theme={chartTheme}
         value={value}
         windowStyle="rounded"
         windows={[
@@ -252,6 +256,7 @@ export function BitcoinChart() {
 }
 
 export function OrderbookChart() {
+  const chartTheme = useChartTheme();
   const [state, setState] = useState<{
     data: LiveChartPoint[];
     value: number;
@@ -303,7 +308,7 @@ export function OrderbookChart() {
         momentum
         orderbook={state.orderbook}
         padding={{ left: 0 }}
-        theme="light"
+        theme={chartTheme}
         value={state.value}
       />
     </ChartFrame>
@@ -399,6 +404,7 @@ function createCandleWalker(start: number, width: number) {
 }
 
 export function CandlestickChart() {
+  const chartTheme = useChartTheme();
   const [mode, setMode] = useState<"line" | "candle">("candle");
   const [state, setState] = useState<CandleState>({
     candles: [],
@@ -429,8 +435,7 @@ export function CandlestickChart() {
         momentum={mode === "line"}
         onModeChange={setMode}
         padding={{ left: 0 }}
-        style={{ height: "calc(100% - 34px)" }}
-        theme="light"
+        theme={chartTheme}
         value={state.value}
         window={180}
       />
@@ -439,6 +444,7 @@ export function CandlestickChart() {
 }
 
 export function MultiSeriesChart() {
+  const chartTheme = useChartTheme();
   const defs = [
     { color: "#3b82f6", id: "yes", label: "Yes", start: 52 },
     { color: "#ef4444", id: "no", label: "No", start: 34 },
@@ -536,7 +542,7 @@ export function MultiSeriesChart() {
         formatValue={(v) => `${v.toFixed(0)}%`}
         padding={{ left: 0 }}
         series={series}
-        theme="light"
+        theme={chartTheme}
         value={0}
       />
     </ChartFrame>
@@ -544,6 +550,7 @@ export function MultiSeriesChart() {
 }
 
 export function LoadingChart() {
+  const chartTheme = useChartTheme();
   const [loading, setLoading] = useState(true);
   const { data, value } = useWalker({
     damping: 0.96,
@@ -597,7 +604,7 @@ export function LoadingChart() {
         data={loading ? [] : data}
         loading={loading}
         padding={{ left: 0 }}
-        theme="light"
+        theme={chartTheme}
         value={loading ? 0 : value}
       />
     </ChartFrame>
@@ -645,6 +652,7 @@ function PauseIcon({ paused }: { paused: boolean }) {
 }
 
 export function PausedChart() {
+  const chartTheme = useChartTheme();
   const [paused, setPaused] = useState(false);
   const { data, value } = useWalker({
     damping: 0.95,
@@ -655,7 +663,7 @@ export function PausedChart() {
   });
 
   return (
-    <div style={{ marginBottom: "3rem", marginTop: "2rem" }}>
+    <div className="not-prose my-8">
       <div style={{ height: 220 }}>
         <LiveChart
           color="#22c55e"
@@ -663,26 +671,13 @@ export function PausedChart() {
           momentum
           padding={{ left: 0 }}
           paused={paused}
-          theme="light"
+          theme={chartTheme}
           value={value}
         />
       </div>
       <button
+        className="mx-auto mt-4 flex cursor-pointer items-center justify-center gap-1.5 border-0 bg-transparent p-0 font-inherit text-fd-muted-foreground text-xs"
         onClick={() => setPaused((p) => !p)}
-        style={{
-          alignItems: "center",
-          background: "none",
-          border: "none",
-          color: "rgba(0,0,0,0.40)",
-          cursor: "pointer",
-          display: "flex",
-          fontFamily: "inherit",
-          fontSize: "0.75rem",
-          gap: 6,
-          justifyContent: "center",
-          margin: "3.5rem auto 0",
-          padding: 0,
-        }}
         type="button"
       >
         Click to pause and resume the chart.
@@ -731,19 +726,12 @@ export function DarkChart() {
 
 function StressLabel({ children }: { children: React.ReactNode }) {
   return (
-    <p
-      style={{
-        color: "rgba(0,0,0,0.4)",
-        fontSize: "0.75rem",
-        margin: "0 0 0.5rem",
-      }}
-    >
-      {children}
-    </p>
+    <p className="mt-0 mb-2 text-fd-muted-foreground text-xs">{children}</p>
   );
 }
 
 export function StressTestCharts() {
+  const chartTheme = useChartTheme();
   const a = useWalker(
     {
       damping: 0.85,
@@ -776,7 +764,7 @@ export function StressTestCharts() {
   );
 
   return (
-    <div style={{ marginBottom: "3rem", marginTop: "2rem" }}>
+    <div className="not-prose my-8">
       <StressLabel>Wild swings, fast updates (100ms)</StressLabel>
       <div style={{ height: 200 }}>
         <LiveChart
@@ -785,19 +773,13 @@ export function StressTestCharts() {
           exaggerate
           momentum
           padding={{ left: 0 }}
-          theme="light"
+          theme={chartTheme}
           value={a.value}
         />
       </div>
-      <p
-        style={{
-          color: "rgba(0,0,0,0.4)",
-          fontSize: "0.75rem",
-          margin: "2.5rem 0 0.5rem",
-        }}
-      >
+      <StressLabel>
         Near-flat, ultra-low volatility, exaggerate (150ms)
-      </p>
+      </StressLabel>
       <div style={{ height: 200 }}>
         <LiveChart
           badgeVariant="minimal"
@@ -807,19 +789,11 @@ export function StressTestCharts() {
           formatValue={(v) => `${v.toFixed(1)} bpm`}
           grid={false}
           padding={{ left: 0 }}
-          theme="light"
+          theme={chartTheme}
           value={b.value}
         />
       </div>
-      <p
-        style={{
-          color: "rgba(0,0,0,0.4)",
-          fontSize: "0.75rem",
-          margin: "2.5rem 0 0.5rem",
-        }}
-      >
-        Chaotic, huge spikes (80ms)
-      </p>
+      <StressLabel>Chaotic, huge spikes (80ms)</StressLabel>
       <div style={{ height: 200 }}>
         <LiveChart
           color="#7c3aed"
@@ -828,7 +802,7 @@ export function StressTestCharts() {
           exaggerate
           momentum
           padding={{ left: 0 }}
-          theme="light"
+          theme={chartTheme}
           value={c.value}
         />
       </div>
@@ -837,6 +811,7 @@ export function StressTestCharts() {
 }
 
 export function SpikyTestCharts() {
+  const chartTheme = useChartTheme();
   const a = useWalker(
     {
       damping: 0.6,
@@ -875,7 +850,7 @@ export function SpikyTestCharts() {
   );
 
   return (
-    <div style={{ marginBottom: "3rem", marginTop: "2rem" }}>
+    <div className="not-prose my-8">
       <StressLabel>Frequent sharp reversals (60ms updates)</StressLabel>
       <div style={{ height: 200 }}>
         <LiveChart
@@ -885,19 +860,11 @@ export function SpikyTestCharts() {
           fill
           momentum
           padding={{ left: 0 }}
-          theme="light"
+          theme={chartTheme}
           value={a.value}
         />
       </div>
-      <p
-        style={{
-          color: "rgba(0,0,0,0.4)",
-          fontSize: "0.75rem",
-          margin: "2.5rem 0 0.5rem",
-        }}
-      >
-        Near-flat with massive isolated spikes (120ms)
-      </p>
+      <StressLabel>Near-flat with massive isolated spikes (120ms)</StressLabel>
       <div style={{ height: 200 }}>
         <LiveChart
           badgeVariant="minimal"
@@ -906,19 +873,11 @@ export function SpikyTestCharts() {
           exaggerate
           grid={false}
           padding={{ left: 0 }}
-          theme="light"
+          theme={chartTheme}
           value={b.value}
         />
       </div>
-      <p
-        style={{
-          color: "rgba(0,0,0,0.4)",
-          fontSize: "0.75rem",
-          margin: "2.5rem 0 0.5rem",
-        }}
-      >
-        Rapid zigzag oscillation (50ms)
-      </p>
+      <StressLabel>Rapid zigzag oscillation (50ms)</StressLabel>
       <div style={{ height: 200 }}>
         <LiveChart
           color="#7c3aed"
@@ -927,7 +886,7 @@ export function SpikyTestCharts() {
           exaggerate
           momentum
           padding={{ left: 0 }}
-          theme="light"
+          theme={chartTheme}
           value={c.value}
         />
       </div>
@@ -936,6 +895,7 @@ export function SpikyTestCharts() {
 }
 
 export function GappyChart() {
+  const chartTheme = useChartTheme();
   const [state, setState] = useState<{
     data: LiveChartPoint[];
     value: number;
@@ -1014,7 +974,7 @@ export function GappyChart() {
           fill
           momentum
           padding={{ left: 0 }}
-          theme="light"
+          theme={chartTheme}
           value={state.value}
         />
       </div>
@@ -1023,6 +983,7 @@ export function GappyChart() {
 }
 
 export function MinimalChart() {
+  const chartTheme = useChartTheme();
   const { data, value } = useWalker({
     damping: 0.97,
     start: 25,
@@ -1042,7 +1003,7 @@ export function MinimalChart() {
           momentum={false}
           padding={{ left: 0 }}
           pulse={false}
-          theme="light"
+          theme={chartTheme}
           value={value}
         />
       </div>

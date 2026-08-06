@@ -38,4 +38,6 @@ Each tuple is **`[price, size]`**.
 - Larger sizes appear brighter / more prominent
 - Stream **speed** reacts to price momentum and orderbook churn (how fast totals change)
 
+<OrderbookChart />
+
 Calm books drift slowly; volatile books rush. Rebuild the `orderbook` object whenever your feed updates depth — the engine handles spawn/fade state internally.

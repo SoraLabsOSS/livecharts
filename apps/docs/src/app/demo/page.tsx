@@ -1,24 +1,24 @@
-import type { Metadata } from "next";
-import { absoluteUrl, defaultOpenGraph, defaultTwitter } from "@/lib/og";
-import { DemoArticle } from "./demo";
+"use client";
 
-const title = "Demo";
-const description =
-  "Interactive LiveCharts article — real-time line, candlestick, pause, and multi-series demos.";
+import { useEffect } from "react";
 
-export const metadata: Metadata = {
-  alternates: {
-    canonical: absoluteUrl("/demo"),
-  },
-  description,
-  openGraph: {
-    ...defaultOpenGraph(title, description),
-    url: absoluteUrl("/demo"),
-  },
-  title,
-  twitter: defaultTwitter(title, description),
-};
+/** Old `/demo` URL — send visitors to the docs walkthrough. */
+export default function DemoRedirectPage() {
+  useEffect(() => {
+    window.location.replace("/docs/demo/");
+  }, []);
 
-export default function DemoPage() {
-  return <DemoArticle />;
+  return (
+    <main className="flex min-h-screen flex-col items-center justify-center gap-3 bg-fd-background px-6 text-fd-foreground">
+      <p className="text-fd-muted-foreground text-sm">
+        The demo moved into the docs.
+      </p>
+      <a
+        className="font-medium text-fd-primary text-sm underline"
+        href="/docs/demo/"
+      >
+        Continue to /docs/demo
+      </a>
+    </main>
+  );
 }

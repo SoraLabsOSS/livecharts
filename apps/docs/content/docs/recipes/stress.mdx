@@ -3,7 +3,7 @@ title: Stress patterns
 description: Volatility, spikes, and gappy feeds
 ---
 
-A chart that only looks good on calm data is not useful. These patterns match the [demo stress section](/demo/#stress-testing).
+A chart that only looks good on calm data is not useful. These patterns match the [demo stress section](/docs/demo/#stress-testing).
 
 ## Wild / flat+exaggerate / chaotic
 
@@ -26,9 +26,13 @@ createWalker({
 });
 ```
 
+<StressTestCharts />
+
 ## Sharp reversals & isolated spikes
 
 Drive `tick()` on a fast interval (e.g. 60ms) for hammering direction changes, or hold nearly flat and inject rare large spikes.
+
+<SpikyTestCharts />
 
 ## Gappy / bursty arrival
 
@@ -37,6 +41,8 @@ Don’t sleep on a fixed interval — randomize:
 - Quiet stretches of 1–3s
 - Bursts at 40–80ms
 - Random tick scheduling
+
+<GappyChart />
 
 Append points with **real timestamps**. LiveCharts interpolates across gaps; you should not invent evenly spaced filler unless your product requires it.
 

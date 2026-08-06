@@ -28,6 +28,8 @@ function OrderbookChart() {
 }
 ```
 
+<OrderbookChart />
+
 `makeOrderbook` is your feed adapter — map exchange depth into `[price, size][]` for bids and asks.
 
 Stream speed follows momentum and churn automatically; you only push fresh `orderbook` objects.
