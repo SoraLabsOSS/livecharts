@@ -1,7 +1,7 @@
 {
   "name": "livecharts",
-  "version": "0.0.5",
-  "description": "Real-time animated charts for React — canvas engine with framework bindings",
+  "version": "0.0.6",
+  "description": "Real-time animated charts for React \u00e2\u20ac\u201d canvas engine with framework bindings",
   "keywords": [
     "chart",
     "react",
