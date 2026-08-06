@@ -32,6 +32,19 @@
       }
     },
     {
+      // shadcn/Base UI generated components — leave CLI output alone.
+      "includes": ["packages/ui/**"],
+      "formatter": {
+        "enabled": false
+      },
+      "linter": {
+        "enabled": false
+      },
+      "assist": {
+        "enabled": false
+      }
+    },
+    {
       // Public package entrypoints are intentional re-export barrels.
       "includes": ["packages/livecharts/src/**"],
       "linter": {

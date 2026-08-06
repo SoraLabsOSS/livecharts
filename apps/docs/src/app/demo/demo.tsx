@@ -137,9 +137,10 @@ export function DemoArticle() {
           </header>
 
           <p>
-            LiveCharts is a real-time animated line chart component for React.
-            One <code>&lt;canvas&gt;</code>, no dependencies beyond React 18,
-            smooth interpolation at 60fps.
+            LiveCharts is a real-time animated charting library with a
+            framework-agnostic canvas engine and bindings for React, Vue, and
+            more. One <code>&lt;canvas&gt;</code>, smooth interpolation at
+            60fps.
           </p>
 
           <HeroChart />

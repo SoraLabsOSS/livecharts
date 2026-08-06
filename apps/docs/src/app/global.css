@@ -1,5 +1,5 @@
 @import "tailwindcss";
-@import "fumadocs-ui/css/neutral.css";
+@import "fumadocs-ui/css/vitepress.css";
 @import "fumadocs-ui/css/preset.css";
 /* Relative path: PostCSS cannot resolve package exports for CSS @import. */
 @import "../../../../packages/ui/src/styles/globals.css";

@@ -30,6 +30,7 @@
     "./globals.css": "./src/styles/globals.css",
     "./postcss.config": "./postcss.config.mjs",
     "./lib/utils": "./src/lib/utils.ts",
+    "./components/og/shiori": "./src/components/og/shiori.tsx",
     "./components/*": "./src/components/*.tsx",
     "./hooks/*": "./src/hooks/*.ts"
   }

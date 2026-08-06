@@ -10,7 +10,8 @@ import { createRelativeLink } from "fumadocs-ui/mdx";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getMDXComponents } from "@/components/mdx";
-import { gitConfig } from "@/lib/shared";
+import { absoluteUrl, defaultTwitter, siteDescription } from "@/lib/og";
+import { appName, gitConfig } from "@/lib/shared";
 import { getPageImageUrl, getPageMarkdownUrl, source } from "@/lib/source";
 
 export default async function Page(props: PageProps<"/docs/[[...slug]]">) {
@@ -61,11 +62,36 @@ export async function generateMetadata(
     notFound();
   }
 
+  const { title } = page.data;
+  const description = page.data.description ?? siteDescription;
+  const url = absoluteUrl(page.url.endsWith("/") ? page.url : `${page.url}/`);
+  const image = getPageImageUrl(page).url;
+
   return {
-    description: page.data.description,
-    openGraph: {
-      images: getPageImageUrl(page).url,
+    alternates: {
+      canonical: url,
     },
-    title: page.data.title,
+    description,
+    openGraph: {
+      description,
+      images: [
+        {
+          alt: title,
+          height: 630,
+          url: image,
+          width: 1200,
+        },
+      ],
+      locale: "en_US",
+      siteName: appName,
+      title,
+      type: "article",
+      url,
+    },
+    title,
+    twitter: {
+      ...defaultTwitter(title, description),
+      images: [image],
+    },
   };
 }

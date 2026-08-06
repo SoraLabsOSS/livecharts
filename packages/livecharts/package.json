@@ -1,14 +1,15 @@
 {
   "name": "livecharts",
   "version": "0.0.6",
-  "description": "Real-time animated charts for React \u00e2\u20ac\u201d canvas engine with framework bindings",
+  "description": "Real-time animated canvas charts — framework-agnostic engine with bindings",
   "keywords": [
     "chart",
-    "react",
     "canvas",
     "real-time",
     "line-chart",
-    "candlestick"
+    "candlestick",
+    "react",
+    "vue"
   ],
   "homepage": "https://github.com/SoraLabsOSS/livecharts#readme",
   "repository": {
@@ -69,8 +70,8 @@
   "devDependencies": {
     "@livecharts/core": "workspace:*",
     "@livecharts/react": "workspace:*",
-    "@workspace/typescript-config": "workspace:*",
     "@types/react": "^19.0.0",
+    "@workspace/typescript-config": "workspace:*",
     "react": "^19.0.0",
     "tsup": "^8.5.1",
     "typescript": "5.9.2"
