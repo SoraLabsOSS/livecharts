@@ -1,0 +1,77 @@
+---
+title: Data helpers
+description: createWalker and aggregateCandles from livecharts/data
+---
+
+```ts
+import { createWalker, aggregateCandles } from "livecharts/data";
+```
+
+Tree-shake friendly — does not pull in the canvas engine.
+
+---
+
+## createWalker
+
+Random-walk generator for demos, stress tests, and prototyping.
+
+```ts
+interface WalkerConfig {
+  start: number;
+  damping?: number; // default 0.96
+  volatility?: number; // default 0.02
+  spikeProbability?: number; // default 0.005
+  spikeMagnitude?: number; // default 0.1
+  min?: number;
+  max?: number;
+  historyDuration?: number; // seeded window seconds (default 30)
+  historyPoints?: number; // seeded density (default 300)
+  trimAfter?: number; // drop older than now - trimAfter (default 1.5 × historyDuration)
+}
+
+interface Walker {
+  history: LiveChartPoint[];
+  value: number;
+  tick: () => { history: LiveChartPoint[]; value: number };
+}
+```
+
+```ts
+const walker = createWalker({ start: 125, damping: 0.95, volatility: 0.012 });
+const { history, value } = walker.tick();
+```
+
+Each `tick()` appends a point at `Date.now() / 1000` and trims history older than `trimAfter`.
+
+---
+
+## aggregateCandles
+
+Bucket tick history into OHLC candles.
+
+```ts
+function aggregateCandles(
+  ticks: LiveChartPoint[],
+  widthSecs: number
+): { candles: CandlePoint[]; live: CandlePoint | null };
+```
+
+| Return | Meaning |
+| --- | --- |
+| `candles` | Completed buckets |
+| `live` | Current open bucket, or `null` if no ticks |
+
+Empty ticks or non-positive `widthSecs` → `{ candles: [], live: null }`.
+
+```ts
+const { candles, live } = aggregateCandles(ticks, 60);
+
+<LiveChart
+  data={ticks}
+  value={ticks.at(-1)!.value}
+  mode="candle"
+  candles={candles}
+  liveCandle={live ?? undefined}
+  candleWidth={60}
+/>
+```

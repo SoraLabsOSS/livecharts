@@ -3,13 +3,15 @@ import Link from "next/link";
 import { appName, gitConfig } from "@/lib/shared";
 
 const FOOTER_PRODUCT = [
-  { href: "/docs/", label: "Docs" },
-  { href: "/demo/", label: "Demo" },
+  { disabled: false, href: "/docs/", label: "Docs" },
+  { disabled: true, href: "/demo/", label: "Demo" },
   {
+    disabled: false,
     href: `https://github.com/${gitConfig.user}/${gitConfig.repo}`,
     label: "GitHub",
   },
   {
+    disabled: false,
     href: "https://www.npmjs.com/package/livecharts",
     label: "npm",
   },
@@ -22,8 +24,8 @@ const FOOTER_MORE = [
 
 export function HomeFooter() {
   return (
-    <div className="w-full border-gray-200 border-t">
-      <footer className="mx-auto max-w-7xl border-gray-200 border-x px-6 pt-10">
+    <div className="w-full border-fd-border border-t">
+      <footer className="mx-auto max-w-7xl border-fd-border border-x px-6 pt-10">
         <div className="mb-14 grid grid-cols-2 gap-10 md:grid-cols-4">
           <div className="col-span-2 md:col-span-1">
             <div className="mb-3 flex items-center gap-2">
@@ -34,43 +36,52 @@ export function HomeFooter() {
                 src="/logo.jpg"
                 width={16}
               />
-              <span className="font-semibold text-black text-sm">
+              <span className="font-semibold text-fd-foreground text-sm">
                 {appName}
               </span>
             </div>
-            <p className="max-w-[200px] text-gray-400 text-xs leading-relaxed">
+            <p className="max-w-50 text-fd-muted-foreground text-xs leading-relaxed">
               Real-time animated canvas charts for React, Vue and more.
             </p>
           </div>
           <div>
-            <p className="mb-4 font-semibold text-gray-400 text-xs uppercase tracking-widest">
+            <p className="mb-4 font-semibold text-fd-muted-foreground text-xs uppercase tracking-widest">
               Product
             </p>
             <ul className="space-y-2.5">
               {FOOTER_PRODUCT.map((l) => (
                 <li key={l.label}>
-                  <Link
-                    className="text-gray-500 text-sm transition-colors hover:text-black"
-                    href={l.href}
-                    {...(l.href.startsWith("http")
-                      ? { rel: "noopener noreferrer", target: "_blank" }
-                      : {})}
-                  >
-                    {l.label}
-                  </Link>
+                  {l.disabled ? (
+                    <span
+                      aria-disabled
+                      className="cursor-not-allowed text-fd-muted-foreground/50 text-sm"
+                    >
+                      {l.label}
+                    </span>
+                  ) : (
+                    <Link
+                      className="text-fd-muted-foreground text-sm transition-colors hover:text-fd-foreground"
+                      href={l.href}
+                      {...(l.href.startsWith("http")
+                        ? { rel: "noopener noreferrer", target: "_blank" }
+                        : {})}
+                    >
+                      {l.label}
+                    </Link>
+                  )}
                 </li>
               ))}
             </ul>
           </div>
           <div>
-            <p className="mb-4 font-semibold text-gray-400 text-xs uppercase tracking-widest">
+            <p className="mb-4 font-semibold text-fd-muted-foreground text-xs uppercase tracking-widest">
               More
             </p>
             <ul className="space-y-2.5">
               {FOOTER_MORE.map((l) => (
                 <li key={l.label}>
                   <a
-                    className="text-gray-500 text-sm transition-colors hover:text-black"
+                    className="text-fd-muted-foreground text-sm transition-colors hover:text-fd-foreground"
                     href={l.href}
                     rel="noopener noreferrer"
                     target="_blank"
@@ -82,13 +93,13 @@ export function HomeFooter() {
             </ul>
           </div>
           <div>
-            <p className="mb-4 font-semibold text-gray-400 text-xs uppercase tracking-widest">
+            <p className="mb-4 font-semibold text-fd-muted-foreground text-xs uppercase tracking-widest">
               Legal
             </p>
             <ul className="space-y-2.5">
               <li>
                 <a
-                  className="text-gray-500 text-sm transition-colors hover:text-black"
+                  className="text-fd-muted-foreground text-sm transition-colors hover:text-fd-foreground"
                   href={`https://github.com/${gitConfig.user}/${gitConfig.repo}/blob/main/LICENSE`}
                   rel="noopener noreferrer"
                   target="_blank"
@@ -99,11 +110,11 @@ export function HomeFooter() {
             </ul>
           </div>
         </div>
-        <div className="flex flex-col items-start justify-between gap-6 border-gray-100 border-t pt-8 md:flex-row md:items-center">
-          <p className="mb-5 text-gray-400 text-xs">
+        <div className="flex flex-col items-start justify-between gap-6 border-fd-border border-t pt-8 md:flex-row md:items-center">
+          <p className="mb-5 text-fd-muted-foreground text-xs">
             © {new Date().getFullYear()} {appName} — part of{" "}
             <a
-              className="text-[13px] text-gray-400 underline underline-offset-4 transition-colors hover:text-black"
+              className="text-[13px] text-fd-muted-foreground underline underline-offset-4 transition-colors hover:text-fd-foreground"
               href="https://soralabs.io.vn"
               rel="noopener noreferrer"
               target="_blank"

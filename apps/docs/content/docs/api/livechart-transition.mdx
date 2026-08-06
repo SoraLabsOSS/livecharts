@@ -1,0 +1,37 @@
+---
+title: LiveChartTransition
+description: Cross-fade between keyed chart children
+---
+
+```ts
+import { LiveChartTransition, LiveChart } from "livecharts/react";
+```
+
+## Props
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `active` | `string` | **required** | Key of the visible child |
+| `children` | `ReactElement \| ReactElement[]` | **required** | Charts with unique `key`s |
+| `duration` | `number` | `300` | Cross-fade ms |
+| `className` | `string` | — | Wrapper class |
+| `style` | `CSSProperties` | — | Wrapper style |
+
+## Example
+
+```tsx
+<LiveChartTransition active={chartType} style={{ height: 280 }}>
+  <LiveChart key="line" data={data} value={value} />
+  <LiveChart
+    key="candle"
+    mode="candle"
+    data={data}
+    value={value}
+    candles={candles}
+    liveCandle={live}
+    candleWidth={60}
+  />
+</LiveChartTransition>
+```
+
+Use this when you want **two separate chart instances** with an opacity cross-fade. For the built-in line ↔ candle morph on one instance, prefer `mode` + `onModeChange` on a single [`LiveChart`](/docs/guides/candlestick).

@@ -1,0 +1,48 @@
+---
+title: Stress patterns
+description: Volatility, spikes, and gappy feeds
+---
+
+A chart that only looks good on calm data is not useful. These patterns match the [demo stress section](/demo/#stress-testing).
+
+## Wild / flat+exaggerate / chaotic
+
+Vary `createWalker` parameters:
+
+| Intent | Knobs |
+| --- | --- |
+| Wild | High `volatility`, moderate `damping` |
+| Flat + exaggerate | Low volatility + `exaggerate` on the chart |
+| Chaotic | High `spikeProbability` / `spikeMagnitude` |
+
+```ts
+createWalker({ start: 100, damping: 0.9, volatility: 0.05 });
+createWalker({
+  start: 100,
+  damping: 0.98,
+  volatility: 0.002,
+  spikeProbability: 0.02,
+  spikeMagnitude: 0.25,
+});
+```
+
+## Sharp reversals & isolated spikes
+
+Drive `tick()` on a fast interval (e.g. 60ms) for hammering direction changes, or hold nearly flat and inject rare large spikes.
+
+## Gappy / bursty arrival
+
+Don’t sleep on a fixed interval — randomize:
+
+- Quiet stretches of 1–3s
+- Bursts at 40–80ms
+- Random tick scheduling
+
+Append points with **real timestamps**. LiveCharts interpolates across gaps; you should not invent evenly spaced filler unless your product requires it.
+
+## Checklist
+
+- Range snaps out (no clipping) on spikes
+- Resume after pause still looks intentional
+- Scrubbing remains usable on dense bursts
+- Memory stays bounded (`trimAfter` / manual filter)

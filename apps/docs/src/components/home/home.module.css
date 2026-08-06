@@ -12,3 +12,13 @@
 .fadeUp {
   animation: homeFadeUp 0.65s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
+
+.heroDots {
+  background-color: var(--color-fd-background);
+  background-image: radial-gradient(
+    circle,
+    color-mix(in oklab, var(--color-fd-foreground) 12%, transparent) 1px,
+    transparent 1px
+  );
+  background-size: 20px 20px;
+}

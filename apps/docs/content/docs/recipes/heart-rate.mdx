@@ -1,0 +1,33 @@
+---
+title: Heart rate
+description: Minimal badge, exaggerate, custom formatter
+---
+
+A sensor-style chart: small increments, big visual motion, quiet chrome.
+
+```tsx
+<LiveChart
+  data={data}
+  value={value}
+  theme="light"
+  color="#ef4444"
+  formatValue={(v) => `${Math.round(v)} bpm`}
+  exaggerate
+  badgeVariant="minimal"
+  grid={false}
+  momentum={false}
+  lineWidth={2.5}
+  window={60}
+/>
+```
+
+### Why these props
+
+| Prop | Reason |
+| --- | --- |
+| `exaggerate` | BPM moves are tiny; fill the plot |
+| `badgeVariant="minimal"` | Clinical, less “trading terminal” |
+| `momentum={false}` | Direction arrows add noise for vitals |
+| `formatValue` | Human units on the badge |
+
+Feed with a calm walker (`volatility` low) or a BLE/WebSocket sensor stream.

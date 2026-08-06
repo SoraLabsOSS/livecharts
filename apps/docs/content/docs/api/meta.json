@@ -1,0 +1,12 @@
+{
+  "title": "API",
+  "pages": [
+    "livechart",
+    "types",
+    "data-helpers",
+    "theme",
+    "livechart-engine",
+    "use-live-chart-engine",
+    "livechart-transition"
+  ]
+}

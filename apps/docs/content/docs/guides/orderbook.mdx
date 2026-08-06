@@ -1,0 +1,41 @@
+---
+title: Orderbook
+description: Floating bid/ask labels behind the live line
+---
+
+## Shape
+
+```tsx
+<LiveChart
+  data={data}
+  value={value}
+  orderbook={{
+    bids: [
+      [99.5, 1200],
+      [99.2, 800],
+    ],
+    asks: [
+      [100.1, 900],
+      [100.4, 1500],
+    ],
+  }}
+/>
+```
+
+```ts
+type OrderbookData = {
+  bids: [price: number, size: number][];
+  asks: [price: number, size: number][];
+};
+```
+
+Each tuple is **`[price, size]`**.
+
+## Behavior
+
+- Labels spawn near the bottom, drift upward, and fade out
+- **Bids** render green; **asks** red
+- Larger sizes appear brighter / more prominent
+- Stream **speed** reacts to price momentum and orderbook churn (how fast totals change)
+
+Calm books drift slowly; volatile books rush. Rebuild the `orderbook` object whenever your feed updates depth — the engine handles spawn/fade state internally.

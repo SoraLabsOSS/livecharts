@@ -1,0 +1,54 @@
+---
+title: Time windows
+description: Fixed window, button bar, styles, and controlled changes
+---
+
+## Fixed window
+
+```tsx
+<LiveChart data={data} value={value} window={60} />
+```
+
+`window` is the visible horizon in **seconds** (default `30`). Used when you do **not** pass `windows`.
+
+## Button bar
+
+```tsx
+<LiveChart
+  data={data}
+  value={value}
+  windows={[
+    { label: "1m", secs: 60 },
+    { label: "5m", secs: 300 },
+    { label: "15m", secs: 900 },
+  ]}
+  windowStyle="rounded"
+  onWindowChange={(secs) => console.log(secs)}
+/>
+```
+
+```ts
+type WindowOption = { label: string; secs: number };
+type WindowStyle = "default" | "rounded" | "text";
+```
+
+| Prop | Role |
+| --- | --- |
+| `windows` | Renders the horizon control; active horizon starts at `windows[0].secs` |
+| `window` | Horizon when `windows` is omitted (ignored while the button bar is shown) |
+| `windowStyle` | Visual style (`"default"` if omitted) |
+| `onWindowChange` | Notify callback when the user picks a button (not a controlled `window` binding) |
+
+Changing the horizon animates the time scale — see [Animation](/docs/concepts/animation).
+
+## Styles
+
+| `windowStyle` | Look |
+| --- | --- |
+| `"default"` | Standard segmented control |
+| `"rounded"` | Pill / rounded buttons (common in demos) |
+| `"text"` | Minimal text links |
+
+## History vs window
+
+Keep **more history than the largest window** if users can switch to longer horizons. The visible slice is `window` seconds; your array can be longer.

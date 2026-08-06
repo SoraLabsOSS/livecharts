@@ -1,0 +1,48 @@
+---
+title: Theme helpers
+description: resolveTheme, SERIES_COLORS, parseColorRgb
+---
+
+```ts
+import {
+  resolveTheme,
+  resolveSeriesPalettes,
+  SERIES_COLORS,
+  parseColorRgb,
+} from "livecharts";
+```
+
+## resolveTheme
+
+```ts
+function resolveTheme(color: string, mode: ThemeMode): LiveChartPalette;
+```
+
+Derives the full palette from one accent + `"light"` | `"dark"`. Momentum up/down colors stay semantic green/red.
+
+`<LiveChart />` calls this internally from `color` + `theme`.
+
+## resolveSeriesPalettes
+
+```ts
+function resolveSeriesPalettes(
+  series: LiveChartSeries[],
+  mode: ThemeMode
+): Map<string, LiveChartPalette>;
+```
+
+Per-series palettes keyed by `series.id`.
+
+## SERIES_COLORS
+
+Default accent rotation for multi-series:
+
+`#3b82f6`, `#ef4444`, `#22c55e`, `#f59e0b`, `#8b5cf6`, `#ec4899`, `#06b6d4`, `#f97316`
+
+## parseColorRgb
+
+```ts
+function parseColorRgb(color: string): [number, number, number];
+```
+
+Supports `#rgb`, `#rrggbb`, `rgb()`, `rgba()`. Unparsed input falls back to `[128, 128, 128]`.

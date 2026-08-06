@@ -1,0 +1,27 @@
+---
+title: Multi-outcome market
+description: Several overlapping series with toggle chips
+---
+
+```tsx
+<LiveChart
+  data={[]}
+  value={0}
+  theme="dark"
+  series={[
+    { id: "yes", label: "Yes", color: "#22c55e", data: yesData, value: yesValue },
+    { id: "no", label: "No", color: "#ef4444", data: noData, value: noValue },
+    {
+      id: "other",
+      label: "Other",
+      color: "#a3a3a3",
+      data: otherData,
+      value: otherValue,
+    },
+  ]}
+/>
+```
+
+Chips appear automatically. Users can hide outcomes; the last visible series stays locked on.
+
+Use separate walkers or WebSocket channels per outcome, updating each series’ `data`/`value` together every tick.

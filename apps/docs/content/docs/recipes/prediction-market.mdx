@@ -1,0 +1,30 @@
+---
+title: Prediction market
+description: Reference line + time windows (Polymarket-style)
+---
+
+Strike / threshold line with switchable horizons:
+
+```tsx
+<LiveChart
+  data={data}
+  value={value}
+  theme="light"
+  color="#3b82f6"
+  formatValue={(v) =>
+    v.toLocaleString(undefined, { maximumFractionDigits: 0 })
+  }
+  referenceLine={{ value: 100_000, label: "Strike" }}
+  windows={[
+    { label: "1m", secs: 60 },
+    { label: "5m", secs: 300 },
+    { label: "15m", secs: 900 },
+  ]}
+  windowStyle="rounded"
+  onWindowChange={(secs) => console.log(secs)}
+/>
+```
+
+The button bar starts on the first option (`1m`). Keep more history than the longest window so switching horizons stays meaningful.
+
+Inspired by Polymarket-style short windows on an underlying price — see the [demo](/demo/#reference-line).

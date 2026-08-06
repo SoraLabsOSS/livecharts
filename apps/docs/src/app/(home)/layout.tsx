@@ -1,6 +1,4 @@
-import { HomeLayout } from "fumadocs-ui/layouts/home";
 import type { Metadata } from "next";
-import { baseOptions } from "@/lib/layout.shared";
 import {
   absoluteUrl,
   defaultOpenGraph,
@@ -25,5 +23,5 @@ export const metadata: Metadata = {
 };
 
 export default function Layout({ children }: LayoutProps<"/">) {
-  return <HomeLayout {...baseOptions()}>{children}</HomeLayout>;
+  return children;
 }

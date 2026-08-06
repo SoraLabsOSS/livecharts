@@ -1,0 +1,34 @@
+---
+title: Momentum
+description: Directional arrows and auto-detect vs forced direction
+---
+
+## Usage
+
+```tsx
+<LiveChart data={data} value={value} momentum />
+<LiveChart data={data} value={value} momentum="up" />
+<LiveChart data={data} value={value} momentum={false} />
+```
+
+| Value | Behavior |
+| --- | --- |
+| `true` (default) | Auto-detect from recent points |
+| `"up"` \| `"down"` \| `"flat"` | Force direction (and colors) |
+| `false` | Hide arrows; tip still draws |
+
+## Visual language
+
+- **Up** — green tip + up arrow
+- **Down** — red tip + down arrow
+- **Flat** — accent-colored tip, no strong direction
+
+Arrows crossfade when direction changes so the tip does not flicker.
+
+## Pairing
+
+Momentum pairs well with:
+
+- `valueMomentumColor` on the large value overlay
+- `degen` particles on swings ([Effects](/docs/guides/effects))
+- Orderbook stream speed (reacts to momentum + churn)
