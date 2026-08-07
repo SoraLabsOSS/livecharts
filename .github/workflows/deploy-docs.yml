@@ -5,6 +5,11 @@ on:
     branches: [main]
     paths:
       - "apps/docs/**"
+      - "packages/livecharts/**"
+      - "packages/core/**"
+      - "packages/react/**"
+      - "packages/vue/**"
+      - "packages/ui/**"
       - "package.json"
       - "bun.lock"
       - ".github/workflows/deploy-docs.yml"
