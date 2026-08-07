@@ -1,11 +1,11 @@
 {
   "entries": [
     {
-      "bytes": 136461,
+      "bytes": 136856,
       "gzip": "29 KB",
-      "gzipBytes": 29725,
+      "gzipBytes": 29831,
       "import": "livecharts",
-      "min": "133 KB",
+      "min": "134 KB",
       "note": "Engine + theme helpers"
     },
     {
@@ -25,16 +25,16 @@
       "note": "Vue binding (engine inlined; vue is peer)"
     },
     {
-      "bytes": 2515,
-      "gzip": "0.8 KB",
-      "gzipBytes": 851,
+      "bytes": 2910,
+      "gzip": "0.9 KB",
+      "gzipBytes": 964,
       "import": "livecharts/data",
-      "min": "2.5 KB",
+      "min": "2.8 KB",
       "note": "Helpers only — no canvas engine"
     }
   ],
-  "measuredAt": "2026-08-06T19:27:20.588Z",
+  "measuredAt": "2026-08-07T12:02:22.543Z",
   "method": "ESM dist, gzip -9; framework peers not included",
   "package": "livecharts",
-  "version": "0.0.7"
+  "version": "0.1.0"
 }

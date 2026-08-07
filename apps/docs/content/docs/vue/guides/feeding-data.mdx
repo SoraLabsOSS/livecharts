@@ -1,20 +1,22 @@
 ---
 title: Feeding live data
-description: WebSockets, polling, createWalker, and irregular intervals
+description: WebSockets, polling, pushTick, createWalker, and irregular intervals
 ---
 
 ## Push model
 
 LiveCharts is a **push** chart: you update `data` and `value` whenever you have a new reading. The engine interpolates between paints.
 
+Prefer [`pushTick`](/docs/react/api/data-helpers#pushtick) so you do not hand-roll trim logic
+(same helper as React — `livecharts/data`):
+
 ```ts
+import { pushTick } from "livecharts/data";
+
 function onTick(price: number) {
-  const time = Date.now() / 1000;
-  data.value = [
-    ...data.value.filter((p) => p.time >= time - 120),
-    { time, value: price },
-  ];
-  value.value = price;
+  const next = pushTick(data.value, price, { keepSecs: 120 });
+  data.value = next.data;
+  value.value = next.value;
 }
 ```
 
@@ -53,8 +55,8 @@ Patterns that work well:
 
 | Pattern | Approach |
 | --- | --- |
-| WebSocket | Append on each message; trim by time |
-| Polling | Replace or append on response |
+| WebSocket | `pushTick` on each message |
+| Polling | `pushTick` (or replace) on response |
 | Bursts | Append many points with real timestamps; don’t fake even spacing |
 | Gaps | Leave the hole — the line spans it smoothly |
 
@@ -64,5 +66,5 @@ Even if the latest point is in `data`, pass `value` every update. The live tip, 
 
 ## Multi-series & candles
 
-- Multi-series: update each series’ `data`/`value` together.
+- Multi-series: update each series’ `data`/`value` together (per-series `pushTick` works fine).
 - Candles: keep tick history for the line morph, and rebuild `candles` / `liveCandle` with `aggregateCandles` when the forming bucket changes.

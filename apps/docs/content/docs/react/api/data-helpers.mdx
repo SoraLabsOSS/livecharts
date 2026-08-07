@@ -1,13 +1,35 @@
 ---
 title: Data helpers
-description: createWalker and aggregateCandles from livecharts/data
+description: pushTick, createWalker, and aggregateCandles from livecharts/data
 ---
 
 ```ts
-import { createWalker, aggregateCandles } from "livecharts/data";
+import { pushTick, createWalker, aggregateCandles } from "livecharts/data";
 ```
 
 Tree-shake friendly — does not pull in the canvas engine.
+
+---
+
+## pushTick
+
+Append a live reading and trim history older than `keepSecs` (default **120**). Immutable — does not mutate the input array.
+
+```ts
+function pushTick(
+  data: LiveChartPoint[],
+  value: number,
+  options?: { keepSecs?: number; time?: number }
+): { data: LiveChartPoint[]; value: number };
+```
+
+```ts
+// Prefer a functional updater so async handlers never read stale `data`
+setData((prev) => pushTick(prev, price, { keepSecs: 120 }).data);
+setValue(price);
+```
+
+`time` defaults to `Date.now() / 1000` (unix **seconds**).
 
 ---
 

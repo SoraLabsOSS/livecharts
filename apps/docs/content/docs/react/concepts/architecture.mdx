@@ -57,3 +57,7 @@ See [LiveChartEngine](/docs/react/api/livechart-engine) and [useLiveChartEngine]
 - Keep history bounded (`createWalker` trims via `trimAfter`; do the same for WebSockets).
 - Multi-series and orderbook add draw cost — still one canvas, but more paths per frame.
 - `pauseWhenOffscreen` keeps background tabs cheaper.
+
+## Attribution
+
+Drawing and animation core started from [Liveline](https://github.com/benjitaylor/liveline) (Benji Taylor, MIT). This package splits that engine from React, adds Vue / data entries, and documents the public API. Notices ship in the published [LICENSE](https://github.com/SoraLabsOSS/livecharts/blob/main/packages/livecharts/LICENSE).

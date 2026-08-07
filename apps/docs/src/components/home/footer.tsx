@@ -100,11 +100,21 @@ export function HomeFooter() {
               <li>
                 <a
                   className="text-fd-muted-foreground text-sm transition-colors hover:text-fd-foreground"
-                  href={`https://github.com/${gitConfig.user}/${gitConfig.repo}/blob/main/LICENSE`}
+                  href={`https://github.com/${gitConfig.user}/${gitConfig.repo}/blob/main/packages/livecharts/LICENSE`}
                   rel="noopener noreferrer"
                   target="_blank"
                 >
                   MIT License
+                </a>
+              </li>
+              <li>
+                <a
+                  className="text-fd-muted-foreground text-sm transition-colors hover:text-fd-foreground"
+                  href="https://github.com/benjitaylor/liveline"
+                  rel="noopener noreferrer"
+                  target="_blank"
+                >
+                  Based on Liveline
                 </a>
               </li>
             </ul>
@@ -121,7 +131,16 @@ export function HomeFooter() {
             >
               Sora Labs OSS
             </a>
-            .
+            . Engine based on{" "}
+            <a
+              className="text-[13px] text-fd-muted-foreground underline underline-offset-4 transition-colors hover:text-fd-foreground"
+              href="https://github.com/benjitaylor/liveline"
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              Liveline
+            </a>{" "}
+            by Benji Taylor (MIT).
           </p>
         </div>
       </footer>

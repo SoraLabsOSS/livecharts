@@ -84,6 +84,8 @@ onUnmounted(() => {
 
 LiveCharts interpolates between updates, so even infrequent ticks look smooth.
 
+For a real WebSocket/polling feed, use [`pushTick`](/docs/react/api/data-helpers#pushtick) instead of hand-rolling trim.
+
 Live preview uses the shared engine via React bindings; copy the Vue snippet above.
 
 <BasicChart />

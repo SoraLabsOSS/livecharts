@@ -59,6 +59,13 @@ export interface EngineConfig {
   candles?: CandlePoint[]
   candleWidth?: number
   liveCandle?: CandlePoint
+  /**
+   * Morph progress target (1 = line overlay, 0 = candles).
+   * Required for morph when `mode` is `"candle"` — the engine does not
+   * derive this from `mode === "line"` (that would disable the candle pipeline).
+   * React/Vue bindings set this from public `mode` / deprecated `lineMode`.
+   * @deprecated Prefer public `mode` on React/Vue; keep setting this on the engine.
+   */
   lineMode?: boolean
   lineData?: LiveChartPoint[]
   lineValue?: number

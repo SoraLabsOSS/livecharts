@@ -11,13 +11,13 @@ The core stays the same: one `LiveChartEngine`, one rAF loop, opt-in features. B
 
 | Surface | Status |
 | --- | --- |
-| `livecharts` (engine + types) | Shipped |
+| `livecharts` (engine + types) | Shipped (`0.1.0`) |
 | `livecharts/react` | Shipped |
 | `livecharts/vue` | Shipped |
-| `livecharts/data` | Shipped |
-| Nuxt module | Planned |
+| `livecharts/data` (`pushTick`, walker, candles) | Shipped |
+| Nuxt module | Planned (optional) |
 | Astro / plain HTML / Web Components | Planned |
-| shadcn-style / design-system kits | Exploring |
+| Chrome slots / shadcn recipes | Next |
 
 See [Architecture](/docs/react/concepts/architecture) for how the layers split.
 
@@ -47,10 +47,11 @@ Svelte, Solid, and similar hosts are in the same bucket: thin bindings over the 
 
 LiveCharts is a chart, not a full UI kit — but it should sit cleanly next to component libraries.
 
-**Exploring:**
+**Exploring next:**
 
-- **shadcn/ui-style recipes** — copy-paste chart shells (card, toolbar, empty/loading states) that use LiveCharts inside, themed with CSS variables
-- **Token alignment** — map `theme` / accent color to common design tokens (`--primary`, light/dark) so the chart matches the app without a one-off palette
+- **Chrome slots / render props** — swap windows / mode toggle chrome for app UI (e.g. shadcn) without forking `<LiveChart />`
+- **shadcn/ui-style recipes** — copy-paste chart shells themed with CSS variables
+- **Token alignment** — map `theme` / accent to common design tokens
 - Possible **Sora UI** / registry snippets later if that distribution model fits
 
 This is additive: the npm package stays lean; kits and registry items live as optional docs or separate templates.

@@ -36,7 +36,7 @@ const { candles, live } = aggregateCandles(ticks, width);
 | `candleWidth` | `number` | Bucket width in seconds |
 | `onModeChange` | `(mode) => void` | Fired by the built-in mode toggle |
 
-When candle data is present, LiveCharts shows a **line / candle** control and morphs between views.
+When candle data is present, control the view with **`mode`** + `onModeChange` (controlled). Morph state is derived from `mode === "line"` — you do not need `lineMode`.
 
 ## aggregateCandles
 
