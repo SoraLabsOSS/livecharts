@@ -17,7 +17,8 @@ The core stays the same: one `LiveChartEngine`, one rAF loop, opt-in features. B
 | `livecharts/data` (`pushTick`, walker, candles) | Shipped |
 | Nuxt module | Planned (optional) |
 | Astro / plain HTML / Web Components | Planned |
-| Chrome slots / shadcn recipes | Next |
+| Chrome slots / shadcn recipes | Chrome slots shipped; shadcn recipes next |
+| Accessibility | Keyboard scrub + live region shipped |
 
 See [Architecture](/docs/react/concepts/architecture) for how the layers split.
 
@@ -49,7 +50,8 @@ LiveCharts is a chart, not a full UI kit — but it should sit cleanly next to c
 
 **Exploring next:**
 
-- **Chrome slots / render props** — swap windows / mode toggle chrome for app UI (e.g. shadcn) without forking `<LiveChart />`
+- **Chrome slots / render props** — shipped: `renderWindows` / `renderModeToggle` / `renderSeriesToggle` (React) and `#windows` / `#mode-toggle` / `#series-toggle` (Vue). See [Chrome slots](/docs/react/guides/chrome-slots)
+- **Accessibility v1** — shipped: keyboard scrub + polite live region. See [Accessibility](/docs/react/guides/accessibility)
 - **shadcn/ui-style recipes** — copy-paste chart shells themed with CSS variables
 - **Token alignment** — map `theme` / accent to common design tokens
 - Possible **Sora UI** / registry snippets later if that distribution model fits
@@ -63,7 +65,7 @@ Bindings aside, engine work we care about:
 - Better multi-series ergonomics and legends
 - More window / scrubbing polish
 - Stronger SSR / hydration guidance for Next, Nuxt, and Astro
-- Performance and accessibility notes for dense feeds
+- Performance notes for dense feeds
 
 Priorities shift with real usage — open an issue if something blocks you.
 

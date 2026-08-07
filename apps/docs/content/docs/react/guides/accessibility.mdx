@@ -1,0 +1,52 @@
+---
+title: Accessibility
+description: Keyboard scrub, aria-label, and polite live region
+---
+
+LiveCharts ships a first accessibility pass for keyboard users and screen readers. Canvas stays visual; the plot surface is a focusable region with a polite live region for announcements.
+
+## Defaults
+
+| Prop | Default | Role |
+| --- | --- | --- |
+| `a11y` | `true` | Focusable plot + keyboard scrub + live region |
+| `ariaLabel` | `"Live chart"` | Accessible name for the region |
+| `scrub` | `true` | Required for keyboard scrub (same as pointer scrub) |
+
+```tsx
+<LiveChart data={data} value={value} ariaLabel="BTC price" />
+```
+
+Set `a11y={false}` (or `scrub={false}`) to opt out of the tab stop and live region.
+
+## Keyboard scrub
+
+Focus the chart (Tab), then:
+
+| Key | Action |
+| --- | --- |
+| `←` / `→` | Move scrub ~2% of chart width |
+| `Home` / `End` | Jump to left edge / live tip |
+| `Escape` | Clear scrub |
+
+Bindings call `LiveChartEngine.setScrubX`, which reuses the same hover/scrub pipeline as the pointer.
+
+## Live region
+
+A visually hidden `aria-live="polite"` region announces:
+
+- On **focus**: current live `value` (once — not every tick)
+- On **keyboard scrub**: `formatValue` + `formatTime` for the scrub point
+
+Mouse scrub does not spam the live region.
+
+## Engine API
+
+```ts
+engine.setScrubX(x); // CSS px in the canvas container, or null to clear
+engine.getSize(); // { w, h }
+```
+
+## Limits
+
+This slice does not add a full data table or SVG alternative for the series. Chrome buttons (windows / mode / series) are already native controls; custom [chrome slots](/docs/react/guides/chrome-slots) stay app-owned for a11y.

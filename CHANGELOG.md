@@ -10,6 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - **`pushTick`** in `livecharts/data` — append a live reading and trim history by time
+- **Chrome slots** — replace built-in window / mode / series toolbar with custom DOM (`renderWindows` / `renderModeToggle` / `renderSeriesToggle` on React; `#windows` / `#mode-toggle` / `#series-toggle` on Vue)
+- **Accessibility v1** — focusable plot, keyboard scrub (`←`/`→`/Home/End/Escape), polite live region; `ariaLabel` / `a11y` props; engine `setScrubX` / `getSize`
 - Vue docs section (demo, guides) with shared-engine live previews
 - Auto-measured bundle size table on Introduction (`BundleSizeTable`)
 - Engine lifecycle tests (destroy / window switch / range expansion)

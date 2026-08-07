@@ -15,7 +15,40 @@ import type {
 } from "@livecharts/core";
 import type { StyleValue } from "vue";
 
+export interface ChromeWindowsSlotProps {
+  activeSecs: number;
+  setWindow: (secs: number) => void;
+  theme: ThemeMode;
+  windows: WindowOption[];
+}
+
+export interface ChromeModeSlotProps {
+  mode: "line" | "candle";
+  setMode: (mode: "line" | "candle") => void;
+  theme: ThemeMode;
+}
+
+export interface ChromeSeriesItem {
+  color: string;
+  id: string;
+  label: string;
+  visible: boolean;
+}
+
+export interface ChromeSeriesSlotProps {
+  series: ChromeSeriesItem[];
+  theme: ThemeMode;
+  toggle: (id: string) => void;
+}
+
 export interface LiveChartProps {
+  /**
+   * Enable focusable plot + keyboard scrub + polite live region.
+   * Default `true`. Set `false` to opt out. Requires `scrub` for keyboard scrub.
+   */
+  a11y?: boolean;
+  /** Accessible name for the chart region. Default `"Live chart"`. */
+  ariaLabel?: string;
   badge?: boolean;
   badgeTail?: boolean;
   badgeVariant?: BadgeVariant;

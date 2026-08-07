@@ -5,10 +5,22 @@ import { createWalker, type WalkerConfig } from "livecharts/data";
 import type { LiveChartPoint, ThemeMode } from "livecharts/react";
 import { useEffect, useRef, useState } from "react";
 
-/** Chart theme that follows the Fumadocs / next-themes site theme. */
+/**
+ * Chart theme following the docs site theme.
+ * next-themes `resolvedTheme` differs between SSR and the first client paint
+ * (undefined/light vs localStorage dark) — that hydration mismatch leaves
+ * chrome colors + layout stuck until a manual theme toggle. Defer to a stable
+ * default until mount, then sync.
+ */
 export function useChartTheme(): ThemeMode {
   const { resolvedTheme } = useTheme();
-  return resolvedTheme === "dark" ? "dark" : "light";
+  const [theme, setTheme] = useState<ThemeMode>("dark");
+
+  useEffect(() => {
+    setTheme(resolvedTheme === "light" ? "light" : "dark");
+  }, [resolvedTheme]);
+
+  return theme;
 }
 
 export function useWalker(

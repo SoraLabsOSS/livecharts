@@ -1,7 +1,13 @@
 export { LiveChart } from "./LiveChart";
 export { LiveChartTransition } from "./LiveChartTransition";
 export type { LiveChartTransitionProps } from "./LiveChartTransition";
-export type { LiveChartProps } from "./types";
+export type {
+  LiveChartProps,
+  ChromeWindowsSlotProps,
+  ChromeModeSlotProps,
+  ChromeSeriesSlotProps,
+  ChromeSeriesItem,
+} from "./types";
 export { useLiveChartEngine } from "./useLiveChartEngine";
 
 // Re-export common core types for convenience

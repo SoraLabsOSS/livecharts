@@ -1,0 +1,123 @@
+---
+title: Chrome slots
+description: Replace built-in window / mode / series chrome with your own UI
+---
+
+LiveCharts draws the **canvas**. The toolbar above it (time windows, line/candle toggle, series chips) is optional **chrome**.
+
+Use named slots to plug in your own DOM. Omit a slot to keep the default chrome for that piece.
+
+Live previews below use the shared engine (React demos). Copy the **Vue** snippets for `livecharts/vue`.
+
+## See the difference
+
+Built-in window pills:
+
+<ChromeSlotsDefaultChart />
+
+Custom underline tabs (same idea as `#windows`):
+
+<ChromeSlotsCustomWindowsChart />
+
+## Windows
+
+```vue
+<script setup lang="ts">
+import { LiveChart } from "livecharts/vue";
+import type { LiveChartPoint } from "livecharts/vue";
+import { ref } from "vue";
+
+const data = ref<LiveChartPoint[]>([]);
+const value = ref(0);
+</script>
+
+<template>
+  <LiveChart
+    :data="data"
+    :value="value"
+    :windows="[
+      { label: '30s', secs: 30 },
+      { label: '2m', secs: 120 },
+    ]"
+  >
+    <template #windows="{ windows, activeSecs, setWindow }">
+      <div style="display: flex; gap: 8px">
+        <button
+          v-for="w in windows"
+          :key="w.secs"
+          type="button"
+          :aria-pressed="w.secs === activeSecs"
+          @click="setWindow(w.secs)"
+        >
+          {{ w.label }}
+        </button>
+      </div>
+    </template>
+  </LiveChart>
+</template>
+```
+
+`setWindow` updates the horizon and emits `windowChange`.
+
+## Mode toggle
+
+Custom text segments:
+
+<ChromeSlotsCustomModeChart />
+
+`@mode-change` is required for both the default toggle and `#mode-toggle` — otherwise `setMode` cannot update controlled `mode`.
+
+```vue
+<template>
+  <LiveChart
+    :mode="mode"
+    :candles="candles"
+    :live-candle="liveCandle"
+    :candle-width="60"
+    :data="ticks"
+    :value="latest"
+    @mode-change="mode = $event"
+  >
+    <template #mode-toggle="{ mode: current, setMode }">
+      <select :value="current" @change="setMode(($event.target as HTMLSelectElement).value as 'line' | 'candle')">
+        <option value="line">Line</option>
+        <option value="candle">Candle</option>
+      </select>
+    </template>
+  </LiveChart>
+</template>
+```
+
+## Series chips
+
+Outline pills:
+
+<ChromeSlotsCustomSeriesChart />
+
+```vue
+<template>
+  <LiveChart :series="series" :data="[]" :value="0">
+    <template #series-toggle="{ series: items, toggle }">
+      <button
+        v-for="s in items"
+        :key="s.id"
+        type="button"
+        :style="{ opacity: s.visible ? 1 : 0.4 }"
+        @click="toggle(s.id)"
+      >
+        {{ s.label }}
+      </button>
+    </template>
+  </LiveChart>
+</template>
+```
+
+## Slot names
+
+| Slot | Scope |
+| --- | --- |
+| `#windows` | `windows`, `activeSecs`, `setWindow`, `theme` |
+| `#mode-toggle` | `mode`, `setMode`, `theme` |
+| `#series-toggle` | `series`, `toggle`, `theme` |
+
+Types: `ChromeWindowsSlotProps`, `ChromeModeSlotProps`, `ChromeSeriesSlotProps` from `livecharts/vue`.

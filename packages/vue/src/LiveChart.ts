@@ -37,6 +37,8 @@ export const LiveChart = defineComponent({
   emits: ["windowChange", "modeChange", "seriesToggle", "hover"],
   name: "LiveChart",
   props: {
+    a11y: { default: true, type: Boolean },
+    ariaLabel: { default: "Live chart", type: String },
     badge: { default: true, type: Boolean },
     badgeTail: { default: true, type: Boolean },
     badgeVariant: {
@@ -103,10 +105,13 @@ export const LiveChart = defineComponent({
     windowStyle: String as PropType<LiveChartProps["windowStyle"]>,
     windows: Array as PropType<LiveChartProps["windows"]>,
   },
-  setup(props, { emit }) {
+  setup(props, { emit, slots }) {
     const instance = getCurrentInstance();
     /** True when parent listens with `@mode-change` (declared emit). */
     const hasModeChangeListener = () => !!instance?.vnode.props?.onModeChange;
+    const hasWindowsSlot = () => !!slots.windows;
+    const hasModeSlot = () => !!slots["mode-toggle"];
+    const hasSeriesSlot = () => !!slots["series-toggle"];
 
     const canvasRef = ref<HTMLCanvasElement | null>(null);
     const containerRef = ref<HTMLDivElement | null>(null);
@@ -249,7 +254,7 @@ export const LiveChart = defineComponent({
     );
 
     const measureIndicators = () => {
-      if (props.windows && props.windows.length > 0) {
+      if (props.windows && props.windows.length > 0 && !hasWindowsSlot()) {
         const btn = windowBtnRefs.get(activeWindowSecs.value);
         const bar = windowBarRef.value;
         if (btn && bar) {
@@ -261,7 +266,7 @@ export const LiveChart = defineComponent({
           };
         }
       }
-      if (hasModeChangeListener()) {
+      if (hasModeChangeListener() && !hasModeSlot()) {
         const btn = modeBtnRefs.get(activeMode.value ?? "line");
         const bar = modeBarRef.value;
         if (btn && bar) {
@@ -300,7 +305,29 @@ export const LiveChart = defineComponent({
       hiddenSeries.value = next;
     };
 
-    useLiveChartEngine(canvasRef, containerRef, () => ({
+    const a11yAnnounce = ref("");
+    const scrubXRef = { current: null as number | null };
+    const keyboardScrubRef = { current: false };
+    const a11yEnabled = computed(
+      () => props.a11y !== false && props.scrub !== false
+    );
+
+    const A11Y_KEY_HINT =
+      "Arrow keys scrub the chart. Home and End jump to the edges. Escape clears the scrub.";
+
+    const liveRegionStyle = {
+      border: 0,
+      clip: "rect(0, 0, 0, 0)",
+      height: "1px",
+      margin: "-1px",
+      overflow: "hidden",
+      padding: 0,
+      position: "absolute" as const,
+      whiteSpace: "nowrap" as const,
+      width: "1px",
+    };
+
+    const engineRef = useLiveChartEngine(canvasRef, containerRef, () => ({
       badgeTail: props.badgeTail,
       badgeVariant: props.badgeVariant,
       candles: props.candles,
@@ -324,6 +351,18 @@ export const LiveChart = defineComponent({
       multiSeries: multiSeries.value,
       onHover: (point) => {
         emit("hover", point);
+        // Keep last scrub X on pointer leave so Arrow keys continue from the
+        // visible scrub line; Escape / setScrubX(null) still clears the ref.
+        if (point === null) {
+          return;
+        }
+        scrubXRef.current = point.x;
+        if (keyboardScrubRef.current) {
+          keyboardScrubRef.current = false;
+          const fv = props.formatValue ?? defaultFormatValue;
+          const ft = props.formatTime ?? defaultFormatTime;
+          a11yAnnounce.value = `${fv(point.value)}, ${ft(point.time)}`;
+        }
       },
       orderbookData: props.orderbook,
       padding: pad.value,
@@ -344,6 +383,76 @@ export const LiveChart = defineComponent({
       valueMomentumColor: props.valueMomentumColor,
       windowSecs: effectiveWindowSecs.value,
     }));
+
+    const moveScrub = (nextX: number | null) => {
+      const engine = engineRef.value;
+      if (!engine) {
+        return;
+      }
+      scrubXRef.current = nextX;
+      if (nextX === null) {
+        keyboardScrubRef.current = false;
+        engine.setScrubX(null);
+        a11yAnnounce.value = "";
+        return;
+      }
+      keyboardScrubRef.current = true;
+      engine.setScrubX(nextX);
+    };
+
+    const handleChartKeyDown = (e: KeyboardEvent) => {
+      if (!a11yEnabled.value) {
+        return;
+      }
+      const engine = engineRef.value;
+      if (!engine) {
+        return;
+      }
+      const { w } = engine.getSize();
+      if (w <= 0) {
+        return;
+      }
+
+      const left = pad.value.left;
+      const right = Math.max(left + 1, w - pad.value.right);
+      const step = Math.max(4, w * 0.02);
+      let next = scrubXRef.current;
+
+      switch (e.key) {
+        case "ArrowLeft":
+          e.preventDefault();
+          next = (next ?? right) - step;
+          break;
+        case "ArrowRight":
+          e.preventDefault();
+          next = (next ?? left) + step;
+          break;
+        case "Home":
+          e.preventDefault();
+          next = left;
+          break;
+        case "End":
+          e.preventDefault();
+          next = right;
+          break;
+        case "Escape":
+          e.preventDefault();
+          moveScrub(null);
+          return;
+        default:
+          return;
+      }
+
+      moveScrub(Math.min(right, Math.max(left, next)));
+    };
+
+    const handleChartFocus = () => {
+      if (!a11yEnabled.value) {
+        return;
+      }
+      const fv = props.formatValue ?? defaultFormatValue;
+      a11yAnnounce.value = `Current value ${fv(props.value)}`;
+    };
 
     const activeColor = computed(() =>
       isDark.value ? "rgba(255,255,255,0.7)" : "rgba(0,0,0,0.55)"
@@ -416,345 +525,431 @@ export const LiveChart = defineComponent({
         );
       }
 
+      const showWindowsChrome = !!(props.windows && props.windows.length > 0);
+      const showModeChrome = hasModeChangeListener();
+      const showSeriesChrome = showSeriesToggle.value || hasSeriesSlot();
       const showChrome =
-        (props.windows && props.windows.length > 0) ||
-        hasModeChangeListener() ||
-        showSeriesToggle.value;
+        showWindowsChrome || showModeChrome || showSeriesChrome;
 
       if (showChrome) {
         const chromeChildren: VNode[] = [];
+        const theme = props.theme ?? "dark";
 
-        if (props.windows && props.windows.length > 0) {
-          chromeChildren.push(
-            h(
-              "div",
-              {
-                ref: windowBarRef,
-                style: {
-                  background: chromeBarBg(),
-                  borderRadius: chromeRadius(),
-                  display: "inline-flex",
-                  gap: ws.value === "text" ? 4 : 2,
-                  padding: chromeBarPadding(),
-                  position: "relative",
-                },
+        if (showWindowsChrome) {
+          if (hasWindowsSlot()) {
+            const slotted = slots.windows?.({
+              activeSecs: activeWindowSecs.value,
+              setWindow: (secs: number) => {
+                activeWindowSecs.value = secs;
+                emit("windowChange", secs);
               },
-              [
-                slidingIndicator(indicatorStyle.value),
-                ...props.windows.map((w) => {
-                  const isActive = w.secs === activeWindowSecs.value;
-                  return h(
+              theme,
+              windows: props.windows!,
+            });
+            if (slotted) {
+              chromeChildren.push(
+                ...(Array.isArray(slotted) ? slotted : [slotted])
+              );
+            }
+          } else {
+            chromeChildren.push(
+              h(
+                "div",
+                {
+                  ref: windowBarRef,
+                  style: {
+                    background: chromeBarBg(),
+                    borderRadius: chromeRadius(),
+                    display: "inline-flex",
+                    gap: ws.value === "text" ? 4 : 2,
+                    padding: chromeBarPadding(),
+                    position: "relative",
+                  },
+                },
+                [
+                  slidingIndicator(indicatorStyle.value),
+                  ...props.windows!.map((w) => {
+                    const isActive = w.secs === activeWindowSecs.value;
+                    return h(
+                      "button",
+                      {
+                        key: w.secs,
+                        onClick: () => {
+                          activeWindowSecs.value = w.secs;
+                          emit("windowChange", w.secs);
+                        },
+                        ref: (el: unknown) => {
+                          if (el instanceof HTMLButtonElement) {
+                            windowBtnRefs.set(w.secs, el);
+                          } else {
+                            windowBtnRefs.delete(w.secs);
+                          }
+                        },
+                        style: {
+                          background: "transparent",
+                          border: "none",
+                          borderRadius: ws.value === "rounded" ? 999 : 4,
+                          color: isActive
+                            ? activeColor.value
+                            : inactiveColor.value,
+                          cursor: "pointer",
+                          fontFamily: "system-ui, -apple-system, sans-serif",
+                          fontSize: 11,
+                          fontWeight: isActive ? 600 : 400,
+                          lineHeight: "16px",
+                          padding: ws.value === "text" ? "2px 6px" : "3px 10px",
+                          position: "relative",
+                          transition: "color 0.2s, background 0.15s",
+                          zIndex: 1,
+                        },
+                        type: "button",
+                      },
+                      w.label
+                    );
+                  }),
+                ]
+              )
+            );
+          }
+        }
+
+        if (showModeChrome) {
+          if (hasModeSlot()) {
+            const slotted = slots["mode-toggle"]?.({
+              mode: activeMode.value ?? "line",
+              setMode: (next: "line" | "candle") => {
+                emit("modeChange", next);
+              },
+              theme,
+            });
+            if (slotted) {
+              chromeChildren.push(
+                ...(Array.isArray(slotted) ? slotted : [slotted])
+              );
+            }
+          } else if (hasModeChangeListener()) {
+            const lineActive = activeMode.value === "line";
+            const candleActive = activeMode.value === "candle";
+            chromeChildren.push(
+              h(
+                "div",
+                {
+                  ref: modeBarRef,
+                  style: {
+                    background: chromeBarBg(),
+                    borderRadius: chromeRadius(),
+                    display: "inline-flex",
+                    gap: ws.value === "text" ? 4 : 2,
+                    padding: chromeBarPadding(),
+                    position: "relative",
+                  },
+                },
+                [
+                  slidingIndicator(modeIndicatorStyle.value),
+                  h(
                     "button",
                     {
-                      key: w.secs,
                       onClick: () => {
-                        activeWindowSecs.value = w.secs;
-                        emit("windowChange", w.secs);
+                        emit("modeChange", "line");
                       },
                       ref: (el: unknown) => {
                         if (el instanceof HTMLButtonElement) {
-                          windowBtnRefs.set(w.secs, el);
+                          modeBtnRefs.set("line", el);
                         } else {
-                          windowBtnRefs.delete(w.secs);
+                          modeBtnRefs.delete("line");
                         }
                       },
                       style: {
+                        alignItems: "center",
                         background: "transparent",
                         border: "none",
                         borderRadius: ws.value === "rounded" ? 999 : 4,
-                        color: isActive
-                          ? activeColor.value
-                          : inactiveColor.value,
                         cursor: "pointer",
-                        fontFamily: "system-ui, -apple-system, sans-serif",
-                        fontSize: 11,
-                        fontWeight: isActive ? 600 : 400,
-                        lineHeight: "16px",
-                        padding: ws.value === "text" ? "2px 6px" : "3px 10px",
+                        display: "flex",
+                        padding: "5px 7px",
                         position: "relative",
-                        transition: "color 0.2s, background 0.15s",
                         zIndex: 1,
                       },
                       type: "button",
                     },
-                    w.label
-                  );
-                }),
-              ]
-            )
-          );
-        }
-
-        if (hasModeChangeListener()) {
-          const lineActive = activeMode.value === "line";
-          const candleActive = activeMode.value === "candle";
-          chromeChildren.push(
-            h(
-              "div",
-              {
-                ref: modeBarRef,
-                style: {
-                  background: chromeBarBg(),
-                  borderRadius: chromeRadius(),
-                  display: "inline-flex",
-                  gap: ws.value === "text" ? 4 : 2,
-                  padding: chromeBarPadding(),
-                  position: "relative",
-                },
-              },
-              [
-                slidingIndicator(modeIndicatorStyle.value),
-                h(
-                  "button",
-                  {
-                    onClick: () => {
-                      emit("modeChange", "line");
-                    },
-                    ref: (el: unknown) => {
-                      if (el instanceof HTMLButtonElement) {
-                        modeBtnRefs.set("line", el);
-                      } else {
-                        modeBtnRefs.delete("line");
-                      }
-                    },
-                    style: {
-                      alignItems: "center",
-                      background: "transparent",
-                      border: "none",
-                      borderRadius: ws.value === "rounded" ? 999 : 4,
-                      cursor: "pointer",
-                      display: "flex",
-                      padding: "5px 7px",
-                      position: "relative",
-                      zIndex: 1,
-                    },
-                    type: "button",
-                  },
-                  [
-                    h(
-                      "svg",
-                      {
-                        fill: "none",
-                        height: "12",
-                        viewBox: "0 0 12 12",
-                        width: "12",
-                      },
-                      [
-                        h("path", {
-                          d: "M1 8.5C2.5 8.5 3 4 5.5 4S7.5 7 8.5 7C9.5 7 10 3.5 11 3.5",
+                    [
+                      h(
+                        "svg",
+                        {
                           fill: "none",
-                          stroke: lineActive
-                            ? activeColor.value
-                            : inactiveColor.value,
-                          "stroke-linecap": "round",
-                          "stroke-width": lineActive ? 1.5 : 1.2,
-                        }),
-                      ]
-                    ),
-                  ]
-                ),
-                h(
-                  "button",
-                  {
-                    onClick: () => {
-                      emit("modeChange", "candle");
-                    },
-                    ref: (el: unknown) => {
-                      if (el instanceof HTMLButtonElement) {
-                        modeBtnRefs.set("candle", el);
-                      } else {
-                        modeBtnRefs.delete("candle");
-                      }
-                    },
-                    style: {
-                      alignItems: "center",
-                      background: "transparent",
-                      border: "none",
-                      borderRadius: ws.value === "rounded" ? 999 : 4,
-                      cursor: "pointer",
-                      display: "flex",
-                      padding: "5px 7px",
-                      position: "relative",
-                      zIndex: 1,
-                    },
-                    type: "button",
-                  },
-                  [
-                    h(
-                      "svg",
-                      {
-                        fill: "none",
-                        height: "12",
-                        viewBox: "0 0 12 12",
-                        width: "12",
+                          height: "12",
+                          viewBox: "0 0 12 12",
+                          width: "12",
+                        },
+                        [
+                          h("path", {
+                            d: "M1 8.5C2.5 8.5 3 4 5.5 4S7.5 7 8.5 7C9.5 7 10 3.5 11 3.5",
+                            fill: "none",
+                            stroke: lineActive
+                              ? activeColor.value
+                              : inactiveColor.value,
+                            "stroke-linecap": "round",
+                            "stroke-width": lineActive ? 1.5 : 1.2,
+                          }),
+                        ]
+                      ),
+                    ]
+                  ),
+                  h(
+                    "button",
+                    {
+                      onClick: () => {
+                        emit("modeChange", "candle");
                       },
-                      [
-                        h("line", {
-                          stroke: candleActive
-                            ? activeColor.value
-                            : inactiveColor.value,
-                          "stroke-width": "1",
-                          x1: "3.5",
-                          x2: "3.5",
-                          y1: "1",
-                          y2: "11",
-                        }),
-                        h("rect", {
-                          fill: candleActive
-                            ? activeColor.value
-                            : inactiveColor.value,
-                          height: "5",
-                          rx: "0.5",
-                          width: "3",
-                          x: "2",
-                          y: "3",
-                        }),
-                        h("line", {
-                          stroke: candleActive
-                            ? activeColor.value
-                            : inactiveColor.value,
-                          "stroke-width": "1",
-                          x1: "8.5",
-                          x2: "8.5",
-                          y1: "2",
-                          y2: "10",
-                        }),
-                        h("rect", {
-                          fill: candleActive
-                            ? activeColor.value
-                            : inactiveColor.value,
-                          height: "4",
-                          rx: "0.5",
-                          width: "3",
-                          x: "7",
-                          y: "4",
-                        }),
-                      ]
-                    ),
-                  ]
-                ),
-              ]
-            )
-          );
+                      ref: (el: unknown) => {
+                        if (el instanceof HTMLButtonElement) {
+                          modeBtnRefs.set("candle", el);
+                        } else {
+                          modeBtnRefs.delete("candle");
+                        }
+                      },
+                      style: {
+                        alignItems: "center",
+                        background: "transparent",
+                        border: "none",
+                        borderRadius: ws.value === "rounded" ? 999 : 4,
+                        cursor: "pointer",
+                        display: "flex",
+                        padding: "5px 7px",
+                        position: "relative",
+                        zIndex: 1,
+                      },
+                      type: "button",
+                    },
+                    [
+                      h(
+                        "svg",
+                        {
+                          fill: "none",
+                          height: "12",
+                          viewBox: "0 0 12 12",
+                          width: "12",
+                        },
+                        [
+                          h("line", {
+                            stroke: candleActive
+                              ? activeColor.value
+                              : inactiveColor.value,
+                            "stroke-width": "1",
+                            x1: "3.5",
+                            x2: "3.5",
+                            y1: "1",
+                            y2: "11",
+                          }),
+                          h("rect", {
+                            fill: candleActive
+                              ? activeColor.value
+                              : inactiveColor.value,
+                            height: "5",
+                            rx: "0.5",
+                            width: "3",
+                            x: "2",
+                            y: "3",
+                          }),
+                          h("line", {
+                            stroke: candleActive
+                              ? activeColor.value
+                              : inactiveColor.value,
+                            "stroke-width": "1",
+                            x1: "8.5",
+                            x2: "8.5",
+                            y1: "2",
+                            y2: "10",
+                          }),
+                          h("rect", {
+                            fill: candleActive
+                              ? activeColor.value
+                              : inactiveColor.value,
+                            height: "4",
+                            rx: "0.5",
+                            width: "3",
+                            x: "7",
+                            y: "4",
+                          }),
+                        ]
+                      ),
+                    ]
+                  ),
+                ]
+              )
+            );
+          }
         }
 
-        if (showSeriesToggle.value) {
-          chromeChildren.push(
+        if (showSeriesChrome) {
+          const seriesItems = (lastSeriesProp.value ?? []).map((s, si) => ({
+            color: s.color || SERIES_COLORS[si % SERIES_COLORS.length],
+            id: s.id,
+            label: s.label ?? s.id,
+            visible: !hiddenSeries.value.has(s.id),
+          }));
+
+          if (hasSeriesSlot()) {
+            const slotted = slots["series-toggle"]?.({
+              series: seriesItems,
+              theme,
+              toggle: handleSeriesToggle,
+            });
+            if (slotted) {
+              chromeChildren.push(
+                ...(Array.isArray(slotted) ? slotted : [slotted])
+              );
+            }
+          } else if (showSeriesToggle.value) {
+            chromeChildren.push(
+              h(
+                "div",
+                {
+                  style: {
+                    background: chromeBarBg(),
+                    borderRadius: chromeRadius(),
+                    display: "inline-flex",
+                    gap: ws.value === "text" ? 4 : 2,
+                    opacity: isMultiSeries.value ? 1 : 0,
+                    padding: chromeBarPadding(),
+                    pointerEvents: isMultiSeries.value ? "auto" : "none",
+                    transition: "opacity 0.4s",
+                  },
+                },
+                (lastSeriesProp.value ?? []).map((s, si) => {
+                  const isHidden = hiddenSeries.value.has(s.id);
+                  const seriesColor =
+                    s.color || SERIES_COLORS[si % SERIES_COLORS.length];
+                  return h(
+                    "button",
+                    {
+                      key: s.id,
+                      onClick: () => handleSeriesToggle(s.id),
+                      style: {
+                        alignItems: "center",
+                        background: isHidden
+                          ? "transparent"
+                          : ws.value === "text"
+                            ? "transparent"
+                            : isDark.value
+                              ? "rgba(255,255,255,0.06)"
+                              : "rgba(0,0,0,0.035)",
+                        border: "none",
+                        borderRadius: ws.value === "rounded" ? 999 : 4,
+                        color: isHidden
+                          ? inactiveColor.value
+                          : activeColor.value,
+                        cursor: "pointer",
+                        display: "flex",
+                        fontFamily: "system-ui, -apple-system, sans-serif",
+                        fontSize: 11,
+                        fontWeight: 500,
+                        gap: props.seriesToggleCompact ? 0 : 4,
+                        lineHeight: "16px",
+                        opacity: isHidden ? 0.4 : 1,
+                        padding: props.seriesToggleCompact
+                          ? ws.value === "text"
+                            ? "2px 4px"
+                            : "5px 7px"
+                          : ws.value === "text"
+                            ? "2px 6px"
+                            : "3px 8px",
+                        position: "relative",
+                        transition:
+                          "opacity 0.2s, background 0.15s, color 0.2s",
+                        zIndex: 1,
+                      },
+                      type: "button",
+                    },
+                    [
+                      h("span", {
+                        style: {
+                          background: seriesColor,
+                          borderRadius: "50%",
+                          flexShrink: 0,
+                          height: props.seriesToggleCompact ? 8 : 6,
+                          opacity: isHidden ? 0.4 : 1,
+                          transition: "opacity 0.2s",
+                          width: props.seriesToggleCompact ? 8 : 6,
+                        },
+                      }),
+                      props.seriesToggleCompact ? null : (s.label ?? s.id),
+                    ]
+                  );
+                })
+              )
+            );
+          }
+        }
+
+        if (chromeChildren.length > 0) {
+          children.push(
             h(
               "div",
               {
                 style: {
-                  background: chromeBarBg(),
-                  borderRadius: chromeRadius(),
-                  display: "inline-flex",
-                  gap: ws.value === "text" ? 4 : 2,
-                  opacity: isMultiSeries.value ? 1 : 0,
-                  padding: chromeBarPadding(),
-                  pointerEvents: isMultiSeries.value ? "auto" : "none",
-                  transition: "opacity 0.4s",
+                  alignItems: "center",
+                  display: "flex",
+                  flexShrink: 0,
+                  gap: 6,
+                  marginBottom: 6,
+                  marginLeft: padding.left,
                 },
               },
-              (lastSeriesProp.value ?? []).map((s, si) => {
-                const isHidden = hiddenSeries.value.has(s.id);
-                const seriesColor =
-                  s.color || SERIES_COLORS[si % SERIES_COLORS.length];
-                return h(
-                  "button",
-                  {
-                    key: s.id,
-                    onClick: () => handleSeriesToggle(s.id),
-                    style: {
-                      alignItems: "center",
-                      background: isHidden
-                        ? "transparent"
-                        : ws.value === "text"
-                          ? "transparent"
-                          : isDark.value
-                            ? "rgba(255,255,255,0.06)"
-                            : "rgba(0,0,0,0.035)",
-                      border: "none",
-                      borderRadius: ws.value === "rounded" ? 999 : 4,
-                      color: isHidden ? inactiveColor.value : activeColor.value,
-                      cursor: "pointer",
-                      display: "flex",
-                      fontFamily: "system-ui, -apple-system, sans-serif",
-                      fontSize: 11,
-                      fontWeight: 500,
-                      gap: props.seriesToggleCompact ? 0 : 4,
-                      lineHeight: "16px",
-                      opacity: isHidden ? 0.4 : 1,
-                      padding: props.seriesToggleCompact
-                        ? ws.value === "text"
-                          ? "2px 4px"
-                          : "5px 7px"
-                        : ws.value === "text"
-                          ? "2px 6px"
-                          : "3px 8px",
-                      position: "relative",
-                      transition: "opacity 0.2s, background 0.15s, color 0.2s",
-                      zIndex: 1,
-                    },
-                    type: "button",
-                  },
-                  [
-                    h("span", {
-                      style: {
-                        background: seriesColor,
-                        borderRadius: "50%",
-                        flexShrink: 0,
-                        height: props.seriesToggleCompact ? 8 : 6,
-                        opacity: isHidden ? 0.4 : 1,
-                        transition: "opacity 0.2s",
-                        width: props.seriesToggleCompact ? 8 : 6,
-                      },
-                    }),
-                    props.seriesToggleCompact ? null : (s.label ?? s.id),
-                  ]
-                );
-              })
+              chromeChildren
             )
           );
         }
-
-        children.push(
-          h(
-            "div",
-            {
-              style: {
-                alignItems: "center",
-                display: "flex",
-                flexShrink: 0,
-                gap: 6,
-                marginBottom: 6,
-                marginLeft: padding.left,
-              },
-            },
-            chromeChildren
-          )
-        );
       }
 
       children.push(
         h(
           "div",
           {
+            "aria-description": a11yEnabled.value ? A11Y_KEY_HINT : undefined,
+            "aria-label": a11yEnabled.value ? props.ariaLabel : undefined,
             class: props.class,
+            onFocus: a11yEnabled.value ? handleChartFocus : undefined,
+            onKeydown: a11yEnabled.value ? handleChartKeyDown : undefined,
             ref: containerRef,
+            role: a11yEnabled.value ? "region" : undefined,
             style: [
               {
                 flex: 1,
-                minHeight: 0,
+                height: 0,
+                minHeight: 120,
+                minWidth: 0,
+                outline: "none",
+                overflow: "hidden",
                 position: "relative",
                 width: "100%",
               },
               props.style,
             ],
+            tabindex: a11yEnabled.value ? 0 : undefined,
           },
           [
             h("canvas", {
+              "aria-hidden": "true",
               ref: canvasRef,
-              style: { cursor: cursorStyle.value, display: "block" },
+              style: {
+                cursor: cursorStyle.value,
+                display: "block",
+                height: "100%",
+                width: "100%",
+              },
             }),
+            a11yEnabled.value
+              ? h(
+                  "div",
+                  {
+                    "aria-atomic": "true",
+                    "aria-live": "polite",
+                    style: liveRegionStyle,
+                  },
+                  a11yAnnounce.value
+                )
+              : null,
           ]
         )
       );
@@ -767,6 +962,8 @@ export const LiveChart = defineComponent({
             flexDirection: "column",
             height: "100%",
             minHeight: 0,
+            minWidth: 0,
+            overflow: "hidden",
             width: "100%",
           },
         },

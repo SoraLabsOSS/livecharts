@@ -14,6 +14,18 @@ import type {
   Padding,
   CandlePoint,
 } from "@livecharts/core";
+import type {
+  ChromeModeRender,
+  ChromeSeriesRender,
+  ChromeWindowsRender,
+} from "./chrome";
+
+export type {
+  ChromeModeSlotProps,
+  ChromeSeriesItem,
+  ChromeSeriesSlotProps,
+  ChromeWindowsSlotProps,
+} from "./chrome";
 
 export interface LiveChartProps {
   data: LiveChartPoint[];
@@ -87,6 +99,29 @@ export interface LiveChartProps {
   onModeChange?: (mode: "line" | "candle") => void;
   onSeriesToggle?: (id: string, visible: boolean) => void;
   seriesToggleCompact?: boolean;
+
+  /**
+   * Replace the built-in time-window button bar with custom DOM.
+   * Call `setWindow(secs)` to change the visible horizon.
+   */
+  renderWindows?: ChromeWindowsRender;
+  /**
+   * Replace the built-in line/candle toggle. Requires `onModeChange` (same as
+   * the default toggle) so `setMode` can update controlled `mode`.
+   */
+  renderModeToggle?: ChromeModeRender;
+  /**
+   * Replace the built-in multi-series visibility chips.
+   */
+  renderSeriesToggle?: ChromeSeriesRender;
+
+  /** Accessible name for the chart region. Default `"Live chart"`. */
+  ariaLabel?: string;
+  /**
+   * Enable focusable plot + keyboard scrub + polite live region.
+   * Default `true`. Set `false` to opt out. Requires `scrub` for keyboard scrub.
+   */
+  a11y?: boolean;
 
   className?: string;
   style?: CSSProperties;

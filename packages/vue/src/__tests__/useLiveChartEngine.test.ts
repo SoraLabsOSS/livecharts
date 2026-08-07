@@ -16,6 +16,10 @@ vi.mock("@livecharts/core", async (importOriginal) => {
       setConfig = setConfig;
       start = start;
       destroy = destroy;
+      setScrubX() {}
+      getSize() {
+        return { h: 200, w: 400 };
+      }
     },
   };
 });

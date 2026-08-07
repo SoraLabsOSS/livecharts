@@ -25,6 +25,8 @@ engine.setConfig(config); // EngineConfig
 engine.start(); // begin rAF loop
 engine.stop(); // pause loop (keeps state)
 engine.destroy(); // tear down listeners, badge DOM, loop
+engine.setScrubX(x); // programmatic scrub (CSS px) or null to clear — keyboard a11y
+engine.getSize(); // { w, h } of the canvas container
 ```
 
 Call `setConfig` whenever data or options change. The React wrapper does this after every render.

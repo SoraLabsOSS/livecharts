@@ -1,0 +1,120 @@
+---
+title: Chrome slots
+description: Replace built-in window / mode / series chrome with your own UI
+---
+
+LiveCharts draws the **canvas**. The toolbar above it (time windows, line/candle toggle, series chips) is optional **chrome**.
+
+By default you get the built-in pills. Pass render props to swap in your own DOM — shadcn tabs, Sora UI, plain buttons — without forking the chart.
+
+## See the difference
+
+Built-in window pills:
+
+<ChromeSlotsDefaultChart />
+
+Same chart with **custom** underline tabs via `renderWindows`:
+
+<ChromeSlotsCustomWindowsChart />
+
+## Windows
+
+```tsx
+import { LiveChart } from "livecharts/react";
+
+<LiveChart
+  data={data}
+  value={value}
+  windows={[
+    { label: "30s", secs: 30 },
+    { label: "2m", secs: 120 },
+  ]}
+  renderWindows={({ windows, activeSecs, setWindow }) => (
+    <div style={{ display: "flex", gap: 8 }}>
+      {windows.map((w) => (
+        <button
+          key={w.secs}
+          type="button"
+          aria-pressed={w.secs === activeSecs}
+          onClick={() => setWindow(w.secs)}
+        >
+          {w.label}
+        </button>
+      ))}
+    </div>
+  )}
+/>
+```
+
+`setWindow(secs)` updates the visible horizon and fires `onWindowChange` if provided.
+
+## Mode toggle
+
+Custom text segments instead of the default icon bar:
+
+<ChromeSlotsCustomModeChart />
+
+```tsx
+<LiveChart
+  mode={mode}
+  onModeChange={setMode}
+  candles={candles}
+  liveCandle={liveCandle}
+  candleWidth={60}
+  data={ticks}
+  value={latest}
+  renderModeToggle={({ mode, setMode }) => (
+    <select
+      value={mode}
+      onChange={(e) => setMode(e.target.value as "line" | "candle")}
+    >
+      <option value="line">Line</option>
+      <option value="candle">Candle</option>
+    </select>
+  )}
+/>
+```
+
+Keep `mode` controlled via `onModeChange` — required for both the default toggle and `renderModeToggle` (otherwise clicks cannot update `mode`).
+
+## Series chips
+
+Outline pills you can theme with any design system:
+
+<ChromeSlotsCustomSeriesChart />
+
+```tsx
+<LiveChart
+  series={series}
+  data={[]}
+  value={0}
+  renderSeriesToggle={({ series, toggle }) => (
+    <div style={{ display: "flex", gap: 8 }}>
+      {series.map((s) => (
+        <button
+          key={s.id}
+          type="button"
+          style={{ opacity: s.visible ? 1 : 0.4 }}
+          onClick={() => toggle(s.id)}
+        >
+          <span style={{ color: s.color }}>●</span> {s.label}
+        </button>
+      ))}
+    </div>
+  )}
+/>
+```
+
+`toggle` still refuses to hide the last visible series.
+
+## Slot props
+
+| Render prop | Receives |
+| --- | --- |
+| `renderWindows` | `windows`, `activeSecs`, `setWindow`, `theme` |
+| `renderModeToggle` | `mode`, `setMode`, `theme` |
+| `renderSeriesToggle` | `series` (`id` / `label` / `color` / `visible`), `toggle`, `theme` |
+
+Omit a render prop to keep the default chrome for that piece. Mix freely (custom windows + default mode toggle).
+
+Types: `ChromeWindowsSlotProps`, `ChromeModeSlotProps`, `ChromeSeriesSlotProps` from `livecharts/react`.

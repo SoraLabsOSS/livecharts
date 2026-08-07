@@ -1,16 +1,14 @@
 "use client";
 
 import { Button } from "@workspace/ui/components/ui/button";
-import { useTheme } from "fumadocs-ui/provider/base";
 import { LiveChart } from "livecharts/react";
 import { ArrowUpRight } from "lucide-react";
 import Link from "next/link";
-import { useWalker } from "@/components/demo/walk";
+import { useChartTheme, useWalker } from "@/components/demo/walk";
 import styles from "./home.module.css";
 
 export function HomeCatalog() {
-  const { resolvedTheme } = useTheme();
-  const chartTheme = resolvedTheme === "dark" ? "dark" : "light";
+  const chartTheme = useChartTheme();
   const { data, value } = useWalker(
     {
       damping: 0.95,

@@ -14,12 +14,13 @@ function toEngineConfig(config: HookConfig): EngineConfig {
 /**
  * Thin React adapter over {@link LiveChartEngine}.
  * Mounts the engine once, pushes config after every render, destroys on unmount.
+ * Returns a stable ref to the live engine (for keyboard scrub / imperative APIs).
  */
 export function useLiveChartEngine(
   canvasRef: React.RefObject<HTMLCanvasElement | null>,
   containerRef: React.RefObject<HTMLDivElement | null>,
   config: HookConfig,
-) {
+): React.RefObject<LiveChartEngine | null> {
   const engineRef = useRef<LiveChartEngine | null>(null);
   const configRef = useRef(config);
   configRef.current = config;
@@ -44,4 +45,6 @@ export function useLiveChartEngine(
   useEffect(() => {
     engineRef.current?.setConfig(toEngineConfig(configRef.current));
   });
+
+  return engineRef;
 }

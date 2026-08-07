@@ -1,5 +1,13 @@
-import { useRef, useState, useLayoutEffect, useMemo, useCallback } from "react";
-import type { Momentum, DegenOptions } from "@livecharts/core";
+import {
+  useRef,
+  useState,
+  useLayoutEffect,
+  useMemo,
+  useCallback,
+  type CSSProperties,
+  type KeyboardEvent,
+} from "react";
+import type { Momentum, DegenOptions, HoverPoint } from "@livecharts/core";
 import {
   resolveTheme,
   resolveSeriesPalettes,
@@ -16,6 +24,21 @@ const defaultFormatTime = (t: number) => {
   const m = d.getMinutes().toString().padStart(2, "0");
   const s = d.getSeconds().toString().padStart(2, "0");
   return `${h}:${m}:${s}`;
+};
+
+const A11Y_KEY_HINT =
+  "Arrow keys scrub the chart. Home and End jump to the edges. Escape clears the scrub.";
+
+const liveRegionStyle: CSSProperties = {
+  border: 0,
+  clip: "rect(0, 0, 0, 0)",
+  height: 1,
+  margin: -1,
+  overflow: "hidden",
+  padding: 0,
+  position: "absolute",
+  whiteSpace: "nowrap",
+  width: 1,
 };
 
 export function LiveChart({
@@ -64,6 +87,11 @@ export function LiveChart({
   onModeChange,
   onSeriesToggle,
   seriesToggleCompact = false,
+  renderWindows,
+  renderModeToggle,
+  renderSeriesToggle,
+  ariaLabel = "Live chart",
+  a11y = true,
   lineWidth,
   className,
   style,
@@ -152,9 +180,20 @@ export function LiveChart({
   );
   const effectiveWindowSecs = windows ? activeWindowSecs : windowSecs;
 
-  // Measure active window button for sliding indicator
+  // Keep internal horizon in sync when `windows` / `window` props change
   useLayoutEffect(() => {
-    if (!windows || windows.length === 0) return;
+    if (!windows?.length) {
+      setActiveWindowSecs(windowSecs);
+      return;
+    }
+    if (!windows.some((w) => w.secs === activeWindowSecs)) {
+      setActiveWindowSecs(windows[0]!.secs);
+    }
+  }, [windows, windowSecs, activeWindowSecs]);
+
+  // Measure active window button for sliding indicator (default chrome only)
+  useLayoutEffect(() => {
+    if (!windows || windows.length === 0 || renderWindows) return;
     const btn = windowBtnRefs.current.get(activeWindowSecs);
     const bar = windowBarRef.current;
     if (btn && bar) {
@@ -165,7 +204,7 @@ export function LiveChart({
         width: btnRect.width,
       });
     }
-  }, [activeWindowSecs, windows]);
+  }, [activeWindowSecs, windows, renderWindows]);
 
   // Candle morph: engine always runs candle mode; lineMode drives the morph.
   const hasCandleData = (candles?.length ?? 0) > 0 || liveCandle != null;
@@ -177,7 +216,7 @@ export function LiveChart({
   // Mode toggle UI keys off `mode` when candle chrome is shown
   const activeMode = hasCandleData ? mode : lineMode ? "line" : "candle";
   useLayoutEffect(() => {
-    if (!onModeChange) return;
+    if (!onModeChange || renderModeToggle) return;
     const btn = modeBtnRefs.current.get(activeMode);
     const bar = modeBarRef.current;
     if (btn && bar) {
@@ -188,7 +227,7 @@ export function LiveChart({
         width: btnRect.width,
       });
     }
-  }, [activeMode, onModeChange]);
+  }, [activeMode, onModeChange, renderModeToggle]);
 
   // Series toggle handler — prevent hiding the last visible series
   const handleSeriesToggle = useCallback(
@@ -212,9 +251,60 @@ export function LiveChart({
     [seriesProp?.length, onSeriesToggle],
   );
 
+  const handleWindowSelect = useCallback(
+    (secs: number) => {
+      setActiveWindowSecs(secs);
+      onWindowChange?.(secs);
+    },
+    [onWindowChange],
+  );
+
+  const handleModeSelect = useCallback(
+    (next: "line" | "candle") => {
+      onModeChange?.(next);
+    },
+    [onModeChange],
+  );
+
+  const seriesChromeItems = useMemo(() => {
+    const list = lastSeriesPropRef.current ?? [];
+    return list.map((s, si) => ({
+      id: s.id,
+      label: s.label ?? s.id,
+      color: s.color || SERIES_COLORS[si % SERIES_COLORS.length],
+      visible: !hiddenSeries.has(s.id),
+    }));
+  }, [hiddenSeries, seriesProp]);
+
+  const showModeChrome = !!onModeChange;
+  const showWindowsChrome = !!(windows && windows.length > 0);
+  const showSeriesChrome = showSeriesToggle || !!renderSeriesToggle;
+
   const ws = windowStyle ?? "default";
 
-  useLiveChartEngine(canvasRef, containerRef, {
+  const a11yEnabled = a11y && scrub;
+  const [a11yAnnounce, setA11yAnnounce] = useState("");
+  const scrubXRef = useRef<number | null>(null);
+  const keyboardScrubRef = useRef(false);
+
+  const handleHover = useCallback(
+    (point: HoverPoint | null) => {
+      onHover?.(point);
+      // Keep last scrub X on pointer leave so Arrow keys continue from the
+      // visible scrub line; Escape / setScrubX(null) still clears the ref.
+      if (point === null) return;
+      scrubXRef.current = point.x;
+      if (keyboardScrubRef.current) {
+        keyboardScrubRef.current = false;
+        setA11yAnnounce(
+          `${formatValue(point.value)}, ${formatTime(point.time)}`,
+        );
+      }
+    },
+    [onHover, formatValue, formatTime],
+  );
+
+  const engineRef = useLiveChartEngine(canvasRef, containerRef, {
     data,
     value,
     palette,
@@ -229,7 +319,7 @@ export function LiveChart({
     formatValue,
     formatTime,
     padding: pad,
-    onHover,
+    onHover: handleHover,
     showPulse: pulse,
     scrub,
     exaggerate,
@@ -257,6 +347,71 @@ export function LiveChart({
     hiddenSeriesIds: hiddenSeries,
   });
 
+  const moveScrub = useCallback(
+    (nextX: number | null) => {
+      const engine = engineRef.current;
+      if (!engine) return;
+      scrubXRef.current = nextX;
+      if (nextX === null) {
+        keyboardScrubRef.current = false;
+        engine.setScrubX(null);
+        setA11yAnnounce("");
+        return;
+      }
+      keyboardScrubRef.current = true;
+      engine.setScrubX(nextX);
+    },
+    [engineRef],
+  );
+
+  const handleChartKeyDown = useCallback(
+    (e: KeyboardEvent<HTMLDivElement>) => {
+      if (!a11yEnabled) return;
+      const engine = engineRef.current;
+      if (!engine) return;
+      const { w } = engine.getSize();
+      if (w <= 0) return;
+
+      const left = pad.left;
+      const right = Math.max(left + 1, w - pad.right);
+      const step = Math.max(4, w * 0.02);
+      let next = scrubXRef.current;
+
+      switch (e.key) {
+        case "ArrowLeft":
+          e.preventDefault();
+          next = (next ?? right) - step;
+          break;
+        case "ArrowRight":
+          e.preventDefault();
+          next = (next ?? left) + step;
+          break;
+        case "Home":
+          e.preventDefault();
+          next = left;
+          break;
+        case "End":
+          e.preventDefault();
+          next = right;
+          break;
+        case "Escape":
+          e.preventDefault();
+          moveScrub(null);
+          return;
+        default:
+          return;
+      }
+
+      moveScrub(Math.min(right, Math.max(left, next)));
+    },
+    [a11yEnabled, engineRef, pad.left, pad.right, moveScrub],
+  );
+
+  const handleChartFocus = useCallback(() => {
+    if (!a11yEnabled) return;
+    setA11yAnnounce(`Current value ${formatValue(value)}`);
+  }, [a11yEnabled, formatValue, value]);
+
   const cursorStyle = scrub ? cursor : "default";
 
   const activeColor = isDark ? "rgba(255,255,255,0.7)" : "rgba(0,0,0,0.55)";
@@ -270,6 +425,8 @@ export function LiveChart({
         width: "100%",
         height: "100%",
         minHeight: 0,
+        minWidth: 0,
+        overflow: "hidden",
       }}
     >
       {/* Live value display — above the chart */}
@@ -293,9 +450,7 @@ export function LiveChart({
       )}
 
       {/* Control bars row — window pills + mode toggle + series chips side by side */}
-      {((windows && windows.length > 0) ||
-        onModeChange ||
-        showSeriesToggle) && (
+      {(showWindowsChrome || showModeChrome || showSeriesChrome) && (
         <div
           style={{
             display: "flex",
@@ -307,7 +462,15 @@ export function LiveChart({
           }}
         >
           {/* Time window controls */}
-          {windows && windows.length > 0 && (
+          {showWindowsChrome &&
+            (renderWindows ? (
+              renderWindows({
+                windows: windows!,
+                activeSecs: activeWindowSecs,
+                setWindow: handleWindowSelect,
+                theme,
+              })
+            ) : (
             <div
               ref={windowBarRef}
               style={{
@@ -346,7 +509,7 @@ export function LiveChart({
                   }}
                 />
               )}
-              {windows.map((w) => {
+              {windows!.map((w) => {
                 const isActive = w.secs === activeWindowSecs;
                 return (
                   <button
@@ -355,10 +518,7 @@ export function LiveChart({
                       if (el) windowBtnRefs.current.set(w.secs, el);
                       else windowBtnRefs.current.delete(w.secs);
                     }}
-                    onClick={() => {
-                      setActiveWindowSecs(w.secs);
-                      onWindowChange?.(w.secs);
-                    }}
+                    onClick={() => handleWindowSelect(w.secs)}
                     style={{
                       position: "relative",
                       zIndex: 1,
@@ -380,10 +540,17 @@ export function LiveChart({
                 );
               })}
             </div>
-          )}
+            ))}
 
           {/* Mode toggle — separate bar with its own sliding indicator */}
-          {onModeChange && (
+          {showModeChrome &&
+            (renderModeToggle ? (
+              renderModeToggle({
+                mode: activeMode ?? "line",
+                setMode: handleModeSelect,
+                theme,
+              })
+            ) : (
             <div
               ref={modeBarRef}
               style={{
@@ -428,7 +595,7 @@ export function LiveChart({
                   if (el) modeBtnRefs.current.set("line", el);
                   else modeBtnRefs.current.delete("line");
                 }}
-                onClick={() => onModeChange("line")}
+                onClick={() => handleModeSelect("line")}
                 style={{
                   position: "relative",
                   zIndex: 1,
@@ -457,7 +624,7 @@ export function LiveChart({
                   if (el) modeBtnRefs.current.set("candle", el);
                   else modeBtnRefs.current.delete("candle");
                 }}
-                onClick={() => onModeChange("candle")}
+                onClick={() => handleModeSelect("candle")}
                 style={{
                   position: "relative",
                   zIndex: 1,
@@ -510,10 +677,17 @@ export function LiveChart({
                 </svg>
               </button>
             </div>
-          )}
+            ))}
 
           {/* Series toggle chips */}
-          {showSeriesToggle && (
+          {showSeriesChrome &&
+            (renderSeriesToggle ? (
+              renderSeriesToggle({
+                series: seriesChromeItems,
+                toggle: handleSeriesToggle,
+                theme,
+              })
+            ) : showSeriesToggle ? (
             <div
               style={{
                 display: "inline-flex",
@@ -587,25 +761,48 @@ export function LiveChart({
                 );
               })}
             </div>
-          )}
+            ) : null)}
         </div>
       )}
 
       <div
         ref={containerRef}
         className={className}
+        role={a11yEnabled ? "region" : undefined}
+        aria-label={a11yEnabled ? ariaLabel : undefined}
+        aria-description={a11yEnabled ? A11Y_KEY_HINT : undefined}
+        tabIndex={a11yEnabled ? 0 : undefined}
+        onKeyDown={a11yEnabled ? handleChartKeyDown : undefined}
+        onFocus={a11yEnabled ? handleChartFocus : undefined}
         style={{
           width: "100%",
           flex: 1,
-          minHeight: 0,
+          // height:0 + flex:1 fills leftover under chrome; minHeight
+          // keeps a usable plot if the parent never sets a height
+          height: 0,
+          minHeight: 120,
+          minWidth: 0,
           position: "relative",
+          overflow: "hidden",
+          outline: "none",
           ...style,
         }}
       >
         <canvas
           ref={canvasRef}
-          style={{ display: "block", cursor: cursorStyle }}
+          aria-hidden="true"
+          style={{
+            display: "block",
+            cursor: cursorStyle,
+            width: "100%",
+            height: "100%",
+          }}
         />
+        {a11yEnabled ? (
+          <div aria-atomic="true" aria-live="polite" style={liveRegionStyle}>
+            {a11yAnnounce}
+          </div>
+        ) : null}
       </div>
     </div>
   );

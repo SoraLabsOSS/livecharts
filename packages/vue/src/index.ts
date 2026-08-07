@@ -16,5 +16,12 @@ export type {
 export { LiveChart } from "./LiveChart";
 export type { LiveChartTransitionProps } from "./LiveChartTransition";
 export { LiveChartTransition } from "./LiveChartTransition";
-export type { LiveChartEmits, LiveChartProps } from "./types";
+export type {
+  ChromeModeSlotProps,
+  ChromeSeriesItem,
+  ChromeSeriesSlotProps,
+  ChromeWindowsSlotProps,
+  LiveChartEmits,
+  LiveChartProps,
+} from "./types";
 export { useLiveChartEngine } from "./useLiveChartEngine";

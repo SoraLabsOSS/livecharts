@@ -24,10 +24,7 @@ function ChartFrame({
 }) {
   return (
     <div className={className ?? "not-prose my-8 flex flex-col gap-3"}>
-      <div
-        className="relative w-full shrink-0 overflow-hidden"
-        style={{ height }}
-      >
+      <div className="relative w-full min-w-0 shrink-0" style={{ height }}>
         {children}
       </div>
       {caption ? (
@@ -1020,5 +1017,341 @@ export function MinimalChart() {
         />
       </div>
     </div>
+  );
+}
+
+const CHROME_WINDOWS = [
+  { label: "1m", secs: 60 },
+  { label: "5m", secs: 300 },
+  { label: "10m", secs: 600 },
+] as const;
+
+const CHROME_WALKER = {
+  damping: 0.95,
+  historyDuration: 600,
+  historyPoints: 1200,
+  max: 220,
+  min: 80,
+  start: 128,
+  trimAfter: 900,
+  volatility: 0.012,
+} as const;
+
+/** Default built-in window pills — for side-by-side comparison with slots. */
+export function ChromeSlotsDefaultChart() {
+  const chartTheme = useChartTheme();
+  const { data, value } = useWalker(CHROME_WALKER);
+
+  return (
+    <ChartFrame
+      caption="Built-in chrome (Liveline-style window pills)."
+      height={240}
+    >
+      <LiveChart
+        color="#3b82f6"
+        data={data}
+        padding={{ left: 0 }}
+        theme={chartTheme}
+        value={value}
+        windowStyle="rounded"
+        windows={[...CHROME_WINDOWS]}
+      />
+    </ChartFrame>
+  );
+}
+
+/** Custom underline tabs via renderWindows — clearly not the default pills. */
+export function ChromeSlotsCustomWindowsChart() {
+  const chartTheme = useChartTheme();
+  const isDark = chartTheme === "dark";
+  const { data, value } = useWalker(CHROME_WALKER);
+
+  return (
+    <ChartFrame
+      caption="Same chart, custom chrome — underline tabs instead of pills."
+      height={240}
+    >
+      <LiveChart
+        color="#0d9488"
+        data={data}
+        padding={{ left: 0 }}
+        renderWindows={({ windows, activeSecs, setWindow }) => (
+          <div
+            style={{
+              borderBottom: isDark
+                ? "1px solid rgba(255,255,255,0.12)"
+                : "1px solid rgba(0,0,0,0.1)",
+              display: "flex",
+              gap: 0,
+              maxWidth: "100%",
+              minWidth: 0,
+            }}
+          >
+            {windows.map((w) => {
+              const active = w.secs === activeSecs;
+              return (
+                <button
+                  aria-pressed={active}
+                  key={w.secs}
+                  onClick={() => setWindow(w.secs)}
+                  style={{
+                    background: "transparent",
+                    border: "none",
+                    borderBottom: active
+                      ? "2px solid #0d9488"
+                      : "2px solid transparent",
+                    color: active
+                      ? isDark
+                        ? "#5eead4"
+                        : "#0f766e"
+                      : isDark
+                        ? "rgba(255,255,255,0.4)"
+                        : "rgba(0,0,0,0.4)",
+                    cursor: "pointer",
+                    fontFamily:
+                      "ui-monospace, SFMono-Regular, Menlo, monospace",
+                    fontSize: 12,
+                    fontWeight: active ? 600 : 400,
+                    letterSpacing: "0.04em",
+                    marginBottom: -1,
+                    padding: "6px 14px",
+                    textTransform: "uppercase",
+                  }}
+                  type="button"
+                >
+                  {w.label}
+                </button>
+              );
+            })}
+          </div>
+        )}
+        theme={chartTheme}
+        value={value}
+        windows={[...CHROME_WINDOWS]}
+      />
+    </ChartFrame>
+  );
+}
+
+/** Custom mode toggle — text segments instead of icon pills. */
+export function ChromeSlotsCustomModeChart() {
+  const chartTheme = useChartTheme();
+  const isDark = chartTheme === "dark";
+  const [mode, setMode] = useState<"line" | "candle">("candle");
+  const [state, setState] = useState<CandleState>({
+    candles: [],
+    points: [],
+    value: 185,
+  });
+
+  useEffect(() => {
+    const walker = createCandleWalker(185, 5);
+    setState(walker.snapshot());
+    const id = setInterval(() => setState(walker.tick()), 100);
+    return () => clearInterval(id);
+  }, []);
+
+  return (
+    <ChartFrame
+      caption="Custom mode toggle — LINE / CANDLE text, not the default icons."
+      height={260}
+    >
+      <LiveChart
+        candles={state.candles}
+        candleWidth={6}
+        color="#22c55e"
+        data={state.points}
+        formatValue={(v) => `$${v.toFixed(2)}`}
+        liveCandle={state.liveCandle}
+        mode={mode}
+        momentum={mode === "line"}
+        onModeChange={setMode}
+        padding={{ left: 0 }}
+        renderModeToggle={({ mode: current, setMode: set }) => (
+          <div style={{ display: "flex", gap: 6 }}>
+            {(["line", "candle"] as const).map((m) => {
+              const active = current === m;
+              return (
+                <button
+                  aria-pressed={active}
+                  key={m}
+                  onClick={() => set(m)}
+                  style={{
+                    background: active
+                      ? isDark
+                        ? "rgba(34,197,94,0.2)"
+                        : "rgba(22,163,74,0.12)"
+                      : "transparent",
+                    border: active
+                      ? "1px solid #22c55e"
+                      : isDark
+                        ? "1px solid rgba(255,255,255,0.15)"
+                        : "1px solid rgba(0,0,0,0.15)",
+                    borderRadius: 4,
+                    color: active
+                      ? isDark
+                        ? "#86efac"
+                        : "#15803d"
+                      : isDark
+                        ? "rgba(255,255,255,0.45)"
+                        : "rgba(0,0,0,0.45)",
+                    cursor: "pointer",
+                    fontFamily:
+                      "ui-monospace, SFMono-Regular, Menlo, monospace",
+                    fontSize: 11,
+                    fontWeight: 600,
+                    letterSpacing: "0.06em",
+                    padding: "5px 10px",
+                    textTransform: "uppercase",
+                  }}
+                  type="button"
+                >
+                  {m}
+                </button>
+              );
+            })}
+          </div>
+        )}
+        theme={chartTheme}
+        value={state.value}
+        window={180}
+      />
+    </ChartFrame>
+  );
+}
+
+/** Custom series chips — outline pills with colored dots. */
+export function ChromeSlotsCustomSeriesChart() {
+  const chartTheme = useChartTheme();
+  const isDark = chartTheme === "dark";
+  const defs = [
+    { color: "#3b82f6", id: "yes", label: "Yes", start: 52 },
+    { color: "#ef4444", id: "no", label: "No", start: 34 },
+    { color: "#f59e0b", id: "maybe", label: "Maybe", start: 14 },
+  ];
+  const [series, setSeries] = useState<LiveChartSeries[]>(
+    defs.map((d) => ({
+      color: d.color,
+      data: [],
+      id: d.id,
+      label: d.label,
+      value: d.start,
+    }))
+  );
+
+  useEffect(() => {
+    const values = defs.map((d) => d.start);
+    const velocities = defs.map(() => 0);
+    const histories: LiveChartPoint[][] = defs.map(() => []);
+
+    const normalize = () => {
+      const sum = values.reduce((a, b) => a + b, 0);
+      for (let i = 0; i < values.length; i++) {
+        values[i] = ((values[i] ?? 0) / sum) * 100;
+      }
+    };
+
+    const seed = Date.now() / 1000 - 30;
+    for (let n = 0; n < 300; n++) {
+      const time = seed + 0.1 * n;
+      for (let i = 0; i < defs.length; i++) {
+        velocities[i] =
+          0.9 * (velocities[i] ?? 0) + (Math.random() - 0.5) * 0.8;
+        values[i] = Math.max(5, (values[i] ?? 0) + (velocities[i] ?? 0));
+      }
+      normalize();
+      for (let i = 0; i < defs.length; i++) {
+        histories[i]?.push({ time, value: values[i] ?? 0 });
+      }
+    }
+
+    const tick = () => {
+      const time = Date.now() / 1000;
+      for (let i = 0; i < defs.length; i++) {
+        velocities[i] =
+          0.9 * (velocities[i] ?? 0) + (Math.random() - 0.5) * 0.8;
+        values[i] = Math.max(5, (values[i] ?? 0) + (velocities[i] ?? 0));
+      }
+      normalize();
+      for (let i = 0; i < defs.length; i++) {
+        const hist = histories[i];
+        if (!hist) {
+          continue;
+        }
+        hist.push({ time, value: values[i] ?? 0 });
+        if (hist.length > 400) {
+          hist.shift();
+        }
+      }
+      setSeries(
+        defs.map((d, i) => ({
+          color: d.color,
+          data: [...(histories[i] ?? [])],
+          id: d.id,
+          label: d.label,
+          value: values[i] ?? d.start,
+        }))
+      );
+    };
+
+    tick();
+    const id = setInterval(tick, 200);
+    return () => clearInterval(id);
+  }, []);
+
+  return (
+    <ChartFrame
+      caption="Custom series toggle — outline pills you can style with any design system."
+      height={240}
+    >
+      <LiveChart
+        data={[]}
+        padding={{ left: 0 }}
+        renderSeriesToggle={({ series: items, toggle }) => (
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+            {items.map((s) => (
+              <button
+                aria-pressed={s.visible}
+                key={s.id}
+                onClick={() => toggle(s.id)}
+                style={{
+                  alignItems: "center",
+                  background: s.visible
+                    ? isDark
+                      ? "rgba(255,255,255,0.06)"
+                      : "rgba(0,0,0,0.04)"
+                    : "transparent",
+                  border: `1.5px solid ${s.visible ? s.color : isDark ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.2)"}`,
+                  borderRadius: 999,
+                  color: isDark ? "rgba(255,255,255,0.85)" : "rgba(0,0,0,0.75)",
+                  cursor: "pointer",
+                  display: "inline-flex",
+                  fontSize: 12,
+                  fontWeight: 500,
+                  gap: 6,
+                  opacity: s.visible ? 1 : 0.45,
+                  padding: "4px 12px 4px 8px",
+                }}
+                type="button"
+              >
+                <span
+                  style={{
+                    background: s.color,
+                    borderRadius: "50%",
+                    height: 8,
+                    width: 8,
+                  }}
+                />
+                {s.label}
+              </button>
+            ))}
+          </div>
+        )}
+        series={series}
+        theme={chartTheme}
+        value={0}
+        window={30}
+      />
+    </ChartFrame>
   );
 }

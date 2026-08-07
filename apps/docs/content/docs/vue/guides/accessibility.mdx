@@ -1,0 +1,30 @@
+---
+title: Accessibility
+description: Keyboard scrub, aria-label, and polite live region
+---
+
+Same engine a11y as React — focusable plot, keyboard scrub, polite live region.
+
+## Defaults
+
+| Prop | Default | Role |
+| --- | --- | --- |
+| `a11y` | `true` | Focusable plot + keyboard scrub + live region |
+| `aria-label` / `ariaLabel` | `"Live chart"` | Accessible name |
+| `scrub` | `true` | Required for keyboard scrub |
+
+```vue
+<LiveChart :data="data" :value="value" aria-label="BTC price" />
+```
+
+Set `:a11y="false"` (or `:scrub="false"`) to opt out.
+
+## Keyboard scrub
+
+Focus the chart (Tab), then `←`/`→`, `Home`/`End`, `Escape` — same as [React](/docs/react/guides/accessibility).
+
+Announcements go through a polite live region on focus and keyboard scrub only (not every tick).
+
+## Shared concepts
+
+See the [React accessibility guide](/docs/react/guides/accessibility) for the full key table and engine `setScrubX` notes.

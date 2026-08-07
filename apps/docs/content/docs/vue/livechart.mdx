@@ -98,6 +98,16 @@ Needs a browser canvas — wrap in `ClientOnly` (Nuxt) or equivalent when using 
 | `windows` | `WindowOption[]` | — | Horizon button bar |
 | `windowStyle` | `"default" \| "rounded" \| "text"` | `"default"` | Button bar style |
 
+## Chrome slots
+
+Named slots replace built-in toolbar pieces. See [Chrome slots](/docs/vue/guides/chrome-slots).
+
+| Slot | Scope |
+| --- | --- |
+| `#windows` | `windows`, `activeSecs`, `setWindow`, `theme` |
+| `#mode-toggle` | `mode`, `setMode`, `theme` |
+| `#series-toggle` | `series`, `toggle`, `theme` |
+
 ## Candlestick
 
 | Prop | Type | Default | Description |
@@ -107,6 +117,15 @@ Needs a browser canvas — wrap in `ClientOnly` (Nuxt) or equivalent when using 
 | `liveCandle` | `CandlePoint` | — | Forming candle |
 | `candleWidth` | `number` | — | Bucket width (seconds) |
 | `lineMode` | `boolean` | — | **Deprecated** — prefer `mode` |
+
+## Accessibility
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `a11y` | `boolean` | `true` | Focusable plot + keyboard scrub + live region |
+| `ariaLabel` | `string` | `"Live chart"` | Accessible name (`aria-label`) |
+
+See [Accessibility](/docs/vue/guides/accessibility).
 
 ## Advanced
 

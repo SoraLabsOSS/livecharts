@@ -3,6 +3,10 @@
 export type {
   BadgeVariant,
   CandlePoint,
+  ChromeModeSlotProps,
+  ChromeSeriesItem,
+  ChromeSeriesSlotProps,
+  ChromeWindowsSlotProps,
   DegenOptions,
   HoverPoint,
   LiveChartEmits,

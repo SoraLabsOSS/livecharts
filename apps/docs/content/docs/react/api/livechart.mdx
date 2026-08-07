@@ -67,6 +67,16 @@ The component fills its parent. Set a height on the wrapper.
 | `onWindowChange` | `(secs: number) => void` | — | Fired when the user picks a horizon button |
 | `windowStyle` | `"default" \| "rounded" \| "text"` | `"default"` | Button bar style |
 
+## Chrome slots
+
+Replace built-in toolbar pieces with custom DOM. See [Chrome slots](/docs/react/guides/chrome-slots).
+
+| Prop | Type | Description |
+| --- | --- | --- |
+| `renderWindows` | `(props) => ReactNode` | Custom time-window controls |
+| `renderModeToggle` | `(props) => ReactNode` | Custom line/candle toggle |
+| `renderSeriesToggle` | `(props) => ReactNode` | Custom series visibility chips |
+
 ## Crosshair
 
 | Prop | Type | Default | Description |
@@ -101,6 +111,15 @@ The component fills its parent. Set a height on the wrapper.
 | --- | --- | --- | --- |
 | `onSeriesToggle` | `(id: string, visible: boolean) => void` | — | Chip toggle callback |
 | `seriesToggleCompact` | `boolean` | `false` | Compact chip layout |
+
+## Accessibility
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `a11y` | `boolean` | `true` | Focusable plot + keyboard scrub + live region |
+| `ariaLabel` | `string` | `"Live chart"` | Accessible name for the plot region |
+
+See [Accessibility](/docs/react/guides/accessibility).
 
 ## Advanced
 

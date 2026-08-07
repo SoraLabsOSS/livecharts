@@ -53,4 +53,6 @@ export function useLiveChartEngine(
     engineRef.value?.destroy();
     engineRef.value = null;
   });
+
+  return engineRef;
 }

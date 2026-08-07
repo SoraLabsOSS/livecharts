@@ -225,6 +225,22 @@ export class LiveChartEngine {
     this.ctx = null
   }
 
+  /**
+   * Programmatic scrub position in container-local CSS pixels (same space as
+   * pointer events). Pass `null` to clear. Used by keyboard a11y.
+   */
+  setScrubX(x: number | null): void {
+    this.hoverX = x
+    if (x === null) {
+      this.config?.onHover?.(null)
+    }
+  }
+
+  /** Current canvas container size in CSS pixels. */
+  getSize(): { w: number; h: number } {
+    return { w: this.size.w, h: this.size.h }
+  }
+
   // ─── Setup ────────────────────────────────────────────────────────────────
 
   private setup(): void {
