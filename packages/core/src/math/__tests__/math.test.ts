@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { lerp } from '../lerp'
+import { cubicBezier, easeInOutUi, easeOutUi } from '../easing'
 import { computeRange } from '../range'
 import { detectMomentum } from '../momentum'
 import { interpolateAtTime } from '../interpolate'
@@ -34,6 +35,24 @@ describe('lerp', () => {
     let v = 0
     for (let i = 0; i < 200; i++) v = lerp(v, 100, 0.08, 16.67)
     expect(v).toBeCloseTo(100, 1)
+  })
+})
+
+describe('easing', () => {
+  it('clamps cubicBezier at endpoints', () => {
+    expect(cubicBezier(0, 0.77, 0, 0.175, 1)).toBe(0)
+    expect(cubicBezier(1, 0.77, 0, 0.175, 1)).toBe(1)
+  })
+
+  it('easeOutUi starts fast (past midpoint before t=0.5)', () => {
+    expect(easeOutUi(0.5)).toBeGreaterThan(0.7)
+  })
+
+  it('easeInOutUi is slow at the start and finishes by t=1', () => {
+    expect(easeInOutUi(0.1)).toBeLessThan(0.1)
+    expect(easeInOutUi(0.5)).toBeGreaterThan(0.4)
+    expect(easeInOutUi(0.5)).toBeLessThan(0.7)
+    expect(easeInOutUi(0.95)).toBeGreaterThan(0.9)
   })
 })
 
