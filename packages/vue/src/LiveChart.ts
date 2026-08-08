@@ -494,7 +494,7 @@ export const LiveChart = defineComponent({
           position: "absolute",
           top: ws.value === "rounded" ? 3 : 2,
           transition:
-            "left 200ms cubic-bezier(0.77, 0, 0.175, 1), width 200ms cubic-bezier(0.77, 0, 0.175, 1)",
+            "left 0.25s cubic-bezier(0.4, 0, 0.2, 1), width 0.25s cubic-bezier(0.4, 0, 0.2, 1)",
           width: style.width,
         },
       });
@@ -519,7 +519,7 @@ export const LiveChart = defineComponent({
               marginBottom: 8,
               paddingLeft: padding.left,
               paddingTop: 4,
-              transition: "color 200ms ease",
+              transition: "color 0.3s",
             },
           })
         );
@@ -599,7 +599,7 @@ export const LiveChart = defineComponent({
                           lineHeight: "16px",
                           padding: ws.value === "text" ? "2px 6px" : "3px 10px",
                           position: "relative",
-                          transition: "color 160ms ease, background 160ms ease",
+                          transition: "color 0.2s, background 0.15s",
                           zIndex: 1,
                         },
                         type: "button",
@@ -813,7 +813,7 @@ export const LiveChart = defineComponent({
                     opacity: isMultiSeries.value ? 1 : 0,
                     padding: chromeBarPadding(),
                     pointerEvents: isMultiSeries.value ? "auto" : "none",
-                    transition: "opacity 200ms cubic-bezier(0.23, 1, 0.32, 1)",
+                    transition: "opacity 0.4s",
                   },
                 },
                 (lastSeriesProp.value ?? []).map((s, si) => {
@@ -856,7 +856,7 @@ export const LiveChart = defineComponent({
                             : "3px 8px",
                         position: "relative",
                         transition:
-                          "opacity 160ms ease, background 160ms ease, color 160ms ease",
+                          "opacity 0.2s, background 0.15s, color 0.2s",
                         zIndex: 1,
                       },
                       type: "button",
@@ -869,7 +869,7 @@ export const LiveChart = defineComponent({
                           flexShrink: 0,
                           height: props.seriesToggleCompact ? 8 : 6,
                           opacity: isHidden ? 0.4 : 1,
-                          transition: "opacity 160ms ease",
+                          transition: "opacity 0.2s",
                           width: props.seriesToggleCompact ? 8 : 6,
                         },
                       }),

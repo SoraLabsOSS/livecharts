@@ -1,6 +1,5 @@
 import type { LiveChartPoint, Momentum, ChartLayout, CandlePoint } from '../types'
 import { lerp } from '../math/lerp'
-import { easeInOutUi, easeOutUi } from '../math/easing'
 import { computeRange } from '../math/range'
 import { detectMomentum } from '../math/momentum'
 import { interpolateAtTime } from '../math/interpolate'
@@ -704,7 +703,7 @@ export class LiveChartEngine {
       if (lmt.startMs > 0) {
         const elapsed = now_ms - lmt.startMs
         const t = Math.min(elapsed / LINE_MORPH_MS, 1)
-        this.lineModeProg = lmt.from + (lmt.to - lmt.from) * easeInOutUi(t)
+        this.lineModeProg = lmt.from + (lmt.to - lmt.from) * ((1 - Math.cos(t * Math.PI)) / 2)
         if (t >= 1) { this.lineModeProg = lmt.to; lmt.startMs = 0 }
       } else {
         this.lineModeProg = lmt.to
@@ -773,7 +772,7 @@ export class LiveChartEngine {
       if (cwt.startMs > 0) {
         const elapsed = now_ms - cwt.startMs
         const t = Math.min(elapsed / CANDLE_WIDTH_TRANS_MS, 1)
-        morphT = easeInOutUi(t)
+        morphT = (1 - Math.cos(t * Math.PI)) / 2
         displayCandleWidth = Math.exp(
           Math.log(cwt.fromWidth) + (Math.log(cwt.toWidth) - Math.log(cwt.fromWidth)) * morphT,
         )
@@ -825,7 +824,7 @@ export class LiveChartEngine {
       if (ldt.startMs > 0) {
         const elapsed = now_ms - ldt.startMs
         const t = Math.min(elapsed / LINE_DENSITY_MS, 1)
-        lineDensityProg = ldt.from + (ldt.to - ldt.from) * easeOutUi(t)
+        lineDensityProg = ldt.from + (ldt.to - ldt.from) * (1 - (1 - t) * (1 - t))
         if (t >= 1) { lineDensityProg = ldt.to; ldt.startMs = 0 }
       } else {
         lineDensityProg = ldt.to

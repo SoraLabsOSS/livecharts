@@ -440,7 +440,7 @@ export function LiveChart({
             fontWeight: 500,
             fontFamily: '"SF Mono", Menlo, monospace',
             color: isDark ? "rgba(255,255,255,0.85)" : "#111",
-            transition: "color 200ms ease",
+            transition: "color 0.3s",
             letterSpacing: "-0.01em",
             marginBottom: 8,
             paddingTop: 4,
@@ -504,7 +504,7 @@ export function LiveChart({
                       : "rgba(0,0,0,0.035)",
                     borderRadius: ws === "rounded" ? 999 : 4,
                     transition:
-                      "left 200ms cubic-bezier(0.77, 0, 0.175, 1), width 200ms cubic-bezier(0.77, 0, 0.175, 1)",
+                      "left 0.25s cubic-bezier(0.4, 0, 0.2, 1), width 0.25s cubic-bezier(0.4, 0, 0.2, 1)",
                     pointerEvents: "none" as const,
                   }}
                 />
@@ -531,7 +531,7 @@ export function LiveChart({
                       fontWeight: isActive ? 600 : 400,
                       background: "transparent",
                       color: isActive ? activeColor : inactiveColor,
-                      transition: "color 160ms ease, background 160ms ease",
+                      transition: "color 0.2s, background 0.15s",
                       lineHeight: "16px",
                     }}
                   >
@@ -584,7 +584,7 @@ export function LiveChart({
                       : "rgba(0,0,0,0.035)",
                     borderRadius: ws === "rounded" ? 999 : 4,
                     transition:
-                      "left 200ms cubic-bezier(0.77, 0, 0.175, 1), width 200ms cubic-bezier(0.77, 0, 0.175, 1)",
+                      "left 0.25s cubic-bezier(0.4, 0, 0.2, 1), width 0.25s cubic-bezier(0.4, 0, 0.2, 1)",
                     pointerEvents: "none" as const,
                   }}
                 />
@@ -701,7 +701,7 @@ export function LiveChart({
                 borderRadius: ws === "rounded" ? 999 : 6,
                 padding: ws === "text" ? 0 : ws === "rounded" ? 3 : 2,
                 opacity: isMultiSeries ? 1 : 0,
-                transition: "opacity 200ms cubic-bezier(0.23, 1, 0.32, 1)",
+                transition: "opacity 0.4s",
                 pointerEvents: isMultiSeries ? "auto" : "none",
               }}
             >
@@ -738,8 +738,7 @@ export function LiveChart({
                             : "rgba(0,0,0,0.035)",
                       color: isHidden ? inactiveColor : activeColor,
                       opacity: isHidden ? 0.4 : 1,
-                      transition:
-                        "opacity 160ms ease, background 160ms ease, color 160ms ease",
+                      transition: "opacity 0.2s, background 0.15s, color 0.2s",
                       lineHeight: "16px",
                       display: "flex",
                       alignItems: "center",
@@ -754,7 +753,7 @@ export function LiveChart({
                         background: seriesColor,
                         flexShrink: 0,
                         opacity: isHidden ? 0.4 : 1,
-                        transition: "opacity 160ms ease",
+                        transition: "opacity 0.2s",
                       }}
                     />
                     {!seriesToggleCompact && (s.label ?? s.id)}

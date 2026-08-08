@@ -5,12 +5,17 @@ All notable changes to the published `livecharts` package are documented in this
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.2] - 2026-08-08
+
+### Changed
+
+- Revert **0.1.1** motion polish — restore pre-skill chart morph timings and easing (window 750ms, line↔candle 500ms, crossfade 300ms). Agent skill vendoring removed from the repo.
+
 ## [0.1.1] - 2026-08-08
 
 ### Changed
 
-- **Motion polish** (Emil Kowalski animation standards): snappier window / line↔candle morphs (&lt;300ms), strong ease-out / ease-in-out curves, tighter chrome CSS transitions, `LiveChartTransition` default 220ms + `prefers-reduced-motion`
-- Agent skills from `emilkowalski/skills` vendored under `.agents/skills/` for motion reviews
+- Motion polish attempt (Emil animation standards) — superseded by **0.1.2** revert
 
 ## [0.1.0] - 2026-08-07
 

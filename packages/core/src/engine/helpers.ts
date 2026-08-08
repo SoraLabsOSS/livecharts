@@ -1,6 +1,5 @@
 import type { LiveChartPoint, ChartLayout, Padding, CandlePoint } from '../types'
 import { lerp } from '../math/lerp'
-import { easeInOutUi } from '../math/easing'
 import { computeRange } from '../math/range'
 import { interpolateAtTime } from '../math/interpolate'
 import type { EngineConfig } from './config'
@@ -12,36 +11,29 @@ export const BADGE_WIDTH_LERP = 0.15
 export const BADGE_Y_LERP = 0.35
 export const BADGE_Y_LERP_TRANSITIONING = 0.5
 export const MOMENTUM_COLOR_LERP = 0.12
-/** Window zoom morph — UI budget <300ms; ease-in-out (on-screen move). */
-export const WINDOW_TRANSITION_MS = 280
+export const WINDOW_TRANSITION_MS = 750
 export const WINDOW_BUFFER = 0.05
 export const WINDOW_BUFFER_NO_BADGE = 0.015
 export const VALUE_SNAP_THRESHOLD = 0.001
 export const ADAPTIVE_SPEED_BOOST = 0.2
 export const MOMENTUM_GREEN: [number, number, number] = [34, 197, 94]
 export const MOMENTUM_RED: [number, number, number] = [239, 68, 68]
-/** Reveal exit (data → loading) — keep snappy. */
-export const CHART_REVEAL_SPEED = 0.16
-/** Reveal enter (loading → data) — ease-out feel: start fast. */
-export const CHART_REVEAL_SPEED_FWD = 0.18
+export const CHART_REVEAL_SPEED = 0.14     // data → loading/empty (reverse)
+export const CHART_REVEAL_SPEED_FWD = 0.09 // loading/empty → data (forward, slower for choreography)
 export const PAUSE_PROGRESS_SPEED = 0.12
 /** Below this debt, resume is a quiet unfreeze (no fade/morph flash). */
 export const PAUSE_RESUME_QUIET_MAX_DEBT = 0.15
 /** Opacity ease when resuming inside the visible window. */
-export const PAUSE_RESUME_FADE_SPEED = 0.18
-export const LOADING_ALPHA_SPEED = 0.16
-/** Series chip fade — tens/day; keep short. */
-export const SERIES_TOGGLE_SPEED = 0.18
+export const PAUSE_RESUME_FADE_SPEED = 0.14
+export const LOADING_ALPHA_SPEED = 0.14
+export const SERIES_TOGGLE_SPEED = 0.10
 
 // --- Candle-specific constants ---
 export const CANDLE_LERP_SPEED = 0.25
-/** Candle width morph — under 300ms UI budget. */
-export const CANDLE_WIDTH_TRANS_MS = 220
-/** Line ↔ candle morph — occasional state change, still <300ms. */
-export const LINE_MORPH_MS = 280
+export const CANDLE_WIDTH_TRANS_MS = 300
+export const LINE_MORPH_MS = 500
 export const CLOSE_LINE_LERP_SPEED = 0.25  // matches candle body speed
-/** Overlay line density fade — ease-out entrance. */
-export const LINE_DENSITY_MS = 240
+export const LINE_DENSITY_MS = 350
 export const LINE_LERP_BASE = 0.08
 export const LINE_ADAPTIVE_BOOST = 0.2
 export const LINE_SNAP_THRESHOLD = 0.001
@@ -115,7 +107,7 @@ export function updateWindowTransition(
     const elapsed = now_ms - wt.startMs
     const duration = WINDOW_TRANSITION_MS
     const t = Math.min(elapsed / duration, 1)
-    const eased = easeInOutUi(t)
+    const eased = (1 - Math.cos(t * Math.PI)) / 2
     windowTransProgress = eased
     const logFrom = Math.log(wt.from)
     const logTo = Math.log(wt.to)
@@ -378,7 +370,7 @@ export function updateCandleWindowTransition(
   } else {
     const elapsed = now_ms - wt.startMs
     const t = Math.min(elapsed / WINDOW_TRANSITION_MS, 1)
-    const eased = easeInOutUi(t)
+    const eased = (1 - Math.cos(t * Math.PI)) / 2
     windowTransProgress = eased
     const logFrom = Math.log(wt.from)
     const logTo = Math.log(wt.to)

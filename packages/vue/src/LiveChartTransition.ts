@@ -4,7 +4,6 @@ import {
   Fragment,
   h,
   onBeforeUnmount,
-  onMounted,
   type PropType,
   ref,
   type StyleValue,
@@ -13,17 +12,11 @@ import {
   watch,
 } from "vue";
 
-/** Strong ease-out — Emil / animations.dev UI entrance & exit curve. */
-const EASE_OUT = "cubic-bezier(0.23, 1, 0.32, 1)";
-
-/** Occasional mode switch cross-fade; keep under 300ms UI budget. */
-const DEFAULT_DURATION_MS = 220;
-
 export interface LiveChartTransitionProps {
   /** Key of the active child to display. Must match a child's `key`. */
   active: string;
   class?: string;
-  /** Cross-fade duration in ms (default 220) */
+  /** Cross-fade duration in ms (default 300) */
   duration?: number;
   style?: StyleValue;
 }
@@ -47,8 +40,6 @@ function flattenVNodes(nodes: VNode[]): VNode[] {
  * Cross-fade between chart components (e.g. line ↔ candlestick).
  * Slot children must have unique `key`s matching possible `active` values.
  *
- * Purpose: prevent a jarring swap between two chart instances (opacity only).
- *
  * @example
  * ```vue
  * <LiveChartTransition :active="chartType">
@@ -62,24 +53,16 @@ export const LiveChartTransition = defineComponent({
   props: {
     active: { required: true, type: String },
     class: String,
-    duration: { default: DEFAULT_DURATION_MS, type: Number },
+    duration: { default: 300, type: Number },
     style: [String, Object, Array] as PropType<StyleValue>,
   },
   setup(props, { slots }) {
     const mounted = ref(new Set<string>([props.active]));
     const visible = ref(props.active);
     const prevActive = ref(props.active);
-    const reduceMotion = ref(false);
 
     let rafId = 0;
     let timer: ReturnType<typeof setTimeout> | undefined;
-    let mql: MediaQueryList | undefined;
-
-    const onMqlChange = () => {
-      if (mql) {
-        reduceMotion.value = mql.matches;
-      }
-    };
 
     const clearTimers = () => {
       cancelAnimationFrame(rafId);
@@ -88,41 +71,18 @@ export const LiveChartTransition = defineComponent({
       }
     };
 
-    const effectiveDuration = () => (reduceMotion.value ? 0 : props.duration);
-
-    onMounted(() => {
-      if (typeof window.matchMedia !== "function") {
-        return;
-      }
-      mql = window.matchMedia("(prefers-reduced-motion: reduce)");
-      onMqlChange();
-      mql.addEventListener("change", onMqlChange);
-    });
-
-    onBeforeUnmount(() => {
-      clearTimers();
-      mql?.removeEventListener("change", onMqlChange);
-    });
-
     watch(
       () => props.active,
       (active) => {
         if (active === prevActive.value) {
           return;
         }
-
         const oldKey = prevActive.value;
         prevActive.value = active;
+
         mounted.value = new Set([...mounted.value, active]);
+
         clearTimers();
-
-        const ms = effectiveDuration();
-        if (ms <= 0) {
-          visible.value = active;
-          mounted.value = new Set([active]);
-          return;
-        }
-
         rafId = requestAnimationFrame(() => {
           rafId = requestAnimationFrame(() => {
             visible.value = active;
@@ -133,16 +93,17 @@ export const LiveChartTransition = defineComponent({
           const next = new Set(mounted.value);
           next.delete(oldKey);
           mounted.value = next;
-        }, ms + 50);
+        }, props.duration + 50);
       }
     );
+
+    onBeforeUnmount(clearTimers);
 
     return () => {
       const raw = slots.default?.() ?? [];
       const childArray = flattenVNodes(raw).filter(
         (child) => child.key != null && String(child.key) !== ""
       );
-      const ms = effectiveDuration();
 
       return h(
         "div",
@@ -172,7 +133,7 @@ export const LiveChartTransition = defineComponent({
                 opacity: isActive ? 1 : 0,
                 pointerEvents: isActive ? "auto" : "none",
                 position: "absolute",
-                transition: ms > 0 ? `opacity ${ms}ms ${EASE_OUT}` : "none",
+                transition: `opacity ${props.duration}ms ease`,
               },
             },
             [child]
